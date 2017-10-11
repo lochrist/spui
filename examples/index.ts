@@ -1,5 +1,5 @@
-import * as sp from './spui/spui';
-import {h} from './spui/spui';
+import * as sp from '../spui/spui';
+import {h} from '../spui/spui';
 
 function domTests () {
     let models = ['ping', 'pong', 'bing', 'bong'];
@@ -54,12 +54,26 @@ streamTest();
 
 function streamTest2() {
     let value = sp.createValueStream('222');
+    let copyValue = sp.createValueStream('copy!');
     let input, button;
     let root = h('div', {}, [
         input = h('input', { value: "powwww" }),
-        button = h('button', {onclick: () => value('ping') }, 'Clear')
+        button = h('button', { onclick: () => copyValue(value()) }, 'Clear'),
+        h('span', {}, copyValue())
     ]);
     document.body.appendChild(root);
+
+    let s1 = sp.createValueStream(10);
+    let s2 = sp.createValueStream(20);
+    let s3 = sp.computeStream(() => {
+        return s1() + s2();
+    });
+
+    let s4 = sp.map(s3, value => {
+        return 'random! ' + value;
+    });
+
+    console.log('pow');
 
     /*
     clear$(text => {
@@ -68,16 +82,5 @@ function streamTest2() {
     */
 }
 
-// streamTest2();
+streamTest2();
 
-let s1 = sp.createValueStream(10);
-let s2 = sp.createValueStream(20);
-let s3 = sp.computeStream(() => {
-    return s1() + s2();
-});
-
-let s4 = sp.map(s3, value => {
-    return 'random! ' + value;
-});
-
-console.log('pow');

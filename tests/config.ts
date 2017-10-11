@@ -2,7 +2,6 @@ require.config({
     baseUrl: '../dist',
 
     paths: {
-        'lodash': '../lib/lodash.min',
         'jasmine-boot': '../tests/jasmine-2.6.0/boot'
     },
 

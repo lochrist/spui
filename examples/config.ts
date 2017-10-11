@@ -1,5 +1,5 @@
 require.config({
-    baseUrl: 'dist',
+    baseUrl: '../dist',
 
     paths: {
     },
@@ -8,4 +8,4 @@ require.config({
     }
 });
 
-require(['main']);
+require(['examples/index']);
