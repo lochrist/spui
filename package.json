@@ -1,0 +1,19 @@
+{
+  "name": "vanilla-ts",
+  "displayName": "vanilla-ts",
+  "version": "0.0.1",
+  "description": "vanilla-ts",
+  "license": "MIT",
+  "author": {
+    "url": "https://github.com/lochrist",
+    "name": "Sebastien Phaneuf",
+    "email": "lochrist@yahoo.com"
+  },
+  "devDependencies": {
+    "@types/jasmine": "^2.5.47",
+    "@types/requirejs": "^2.1.28",
+    "tslint": "^5.5.0",
+    "tslint-eslint-rules": "^4.1.1",
+    "typescript": "~2.4.2"
+  }
+}

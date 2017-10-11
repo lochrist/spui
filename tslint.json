@@ -1,0 +1,114 @@
+//stingray/tools/command_line/ts-lint.rb
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended", // https://palantir.github.io/tslint/rules/
+        "tslint-eslint-rules" // https://www.npmjs.com/package/tslint-eslint-rules
+    ],
+    "jsRules": {},
+    "rules": {
+
+        // Bans specific types from being used. Does not ban the corresponding runtime objects from being used.
+        "ban-types": [true],
+
+        // Enforces the rule that interface names must or must not begin with a capital 'I'
+        "interface-name": [false],
+
+        // Disallows bitwise operators.
+        "no-bitwise": false,
+
+        // Checks variable names for various errors
+        "variable-name" : [true, "ban-keywords", "check-format", "allow-pascal-case", "allow-leading-underscore"],
+
+        // Enforces braces for if/for/do/while statements.
+        "curly": false,
+
+        // Requires === and !== in place of == and !=.
+        "triple-equals": true,
+
+        // Disallows object access via string literals
+        "no-string-literal": false,
+
+        // Enforces spacing whitespace
+        "whitespace": [false, "check-typecast"],
+
+        // Disallow irregular whitespace outside of strings and comments
+        "no-irregular-whitespace": true,
+
+        // Disallows unused expression statements.
+        "no-unused-expression": true,
+
+        // tslint-eslint-rules: disallow use of the new operator when not part of an assignment or comparison
+        "no-unused-new" : false,
+
+        // Forbids a ‘var’/’let’ statement or destructuring initializer to be initialized to ‘undefined’.
+        "no-unnecessary-initializer": true,
+
+        // Enforces a threshold of cyclomatic complexity.
+        "cyclomatic-complexity": [true, 42],
+
+        // Requires lines to be under a certain max length.
+        "max-line-length": [true, 240],
+
+        // Checks that type literal members are separated by semicolons. Enforces a trailing semicolon for multiline type literals.
+        "type-literal-delimiter": true,
+
+        // Requires or disallows trailing commas in array and object literals, destructuring assignments, function typings, named imports and exports and function parameters.
+        "trailing-comma" : [true],
+
+        // Requires keys in object literals to be sorted alphabetically.
+        "object-literal-sort-keys": false,
+
+        // Enforces use of ES6 object literal shorthand when possible.
+        "object-literal-shorthand": false,
+
+        // Disallows traditional (non-arrow) function expressions.
+        "only-arrow-functions": [false, "allow-named-functions"],
+
+        // Requires parentheses around the parameters of arrow function definitions.
+        "arrow-parens": [false],
+
+        // Requires explicit visibility declarations for class members.
+        "member-access": [false],
+
+        // Recommends a ‘for-of’ loop over a standard ‘for’ loop if the index is only used to access the array being iterated.
+        "prefer-for-of": false,
+
+        // Bans the use of specified console methods.
+        "no-console": [false],
+
+        // A file may not contain more than the specified number of classes
+        "max-classes-per-file": [false],
+
+        // tslint-eslint-rules: require space before/after arrow function's arrow
+        "ter-arrow-spacing": true,
+
+        // Disallows empty blocks. Blocks with a comment inside are not considered empty.
+        "no-empty": false,
+
+        // Disallows shadowing variable declarations
+        "no-shadowed-variable": false,
+
+        // Requires the use of `as Type` for type assertions instead of `<Type>`
+        "no-angle-bracket-type-assertion": false,
+
+        // Requires that variable declarations use const instead of let and var if possible.
+        "prefer-const": [false],
+
+        // Require or disallow a space before function parenthesis
+        "space-before-function-paren": [false, "always"],
+
+        // Enforce or not member ordering inside a class.
+        "member-ordering": [false],
+
+        // Disallows any type of assignment in any conditionals; this applies to do-while, for, if, and while statements
+        "no-conditional-assignment": false,
+
+        // Disallows multiple variable definitions in the same declaration statement
+        "one-variable-per-declaration": [false],
+
+        // Disallows use of internal `module`s and `namespace`s.
+        "no-namespace": false
+    },
+    "rulesDirectory": []
+}
