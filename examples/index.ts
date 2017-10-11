@@ -55,11 +55,13 @@ streamTest();
 function streamTest2() {
     let value = sp.createValueStream('222');
     let copyValue = sp.createValueStream('copy!');
+    let spanType = sp.createValueStream('span-of-doom');
+
     let input, button;
     let root = h('div', {}, [
         input = h('input', { value: "powwww" }),
         button = h('button', { onclick: () => copyValue(value()) }, 'Clear'),
-        h('span', {}, copyValue())
+        h('span', {class: spanType}, () => copyValue())
     ]);
     document.body.appendChild(root);
 
@@ -71,5 +73,10 @@ function streamTest2() {
     */
 }
 
-streamTest2();
+// streamTest2();
 
+function streamTest3() {
+    let root = h('div', {}, 'Ping!');
+    document.body.appendChild(root);
+}
+streamTest3();
