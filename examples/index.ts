@@ -63,18 +63,7 @@ function streamTest2() {
     ]);
     document.body.appendChild(root);
 
-    let s1 = sp.createValueStream(10);
-    let s2 = sp.createValueStream(20);
-    let s3 = sp.computeStream(() => {
-        return s1() + s2();
-    });
-
-    let s4 = sp.map(s3, value => {
-        return 'random! ' + value;
-    });
-
-    console.log('pow');
-
+    
     /*
     clear$(text => {
         input.value = text;

@@ -6,7 +6,7 @@ type ValueChangePropagation = (value) => any;
 export interface Stream {
     (value?): any;
     _backingValue: any;
-    _dependencies?: Array<ValueChangePropagation>;
+    _listeners?: Array<ValueChangePropagation>;
     _derive?: ValueChangePropagation;
 }
 
@@ -19,8 +19,8 @@ let runningComputations: Array<Stream> = [];
 
 function setValueStream(stream, value) {
     stream._backingValue = stream._derive ? stream._derive(value) : value;
-    if (stream._dependencies && stream._dependencies.length) {
-        const dependencies = stream._dependencies.slice();
+    if (stream._listeners && stream._listeners.length) {
+        const dependencies = stream._listeners.slice();
         for (const dep of dependencies) {
             dep(stream._backingValue);
         }
@@ -50,16 +50,19 @@ export function createValueStream(initialValue?, derive?: ValueChangePropagation
     return stream;
 }
 
-export function addListener(stream: Stream, dependency: ValueChangePropagation) {
-    if (!stream._dependencies) {
-        stream._dependencies = [];
+export function addListener(stream: Stream, listener: ValueChangePropagation) {
+    if (!stream._listeners) {
+        stream._listeners = [];
     }
-    stream._dependencies.push(dependency);
-    return stream;
+    if (stream._listeners.indexOf(listener) === -1) {
+        stream._listeners.push(listener);
+    }
+    
+    return () => removeListener(stream, listener);
 }
 
-export function removeListener(valueStream: Stream, dependency: ValueChangePropagation) {
-    remove(valueStream._dependencies, dependency);
+export function removeListener(valueStream: Stream, listener: ValueChangePropagation) {
+    remove(valueStream._listeners, listener);
     return valueStream;
 }
 
