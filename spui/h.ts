@@ -1,14 +1,18 @@
-import {isFunction, isArray, isString, expandValue} from './utils';
+import {isFunction, isArray, isString, isObject, expandValue} from './utils';
+import * as s from './stream';
 
 type AttrGenerator = (HTMLElement) => Object;
 type ChildrenType = HTMLElement | Array<any> | string;
 type ChildrenGenerator = (HTMLElement) => ChildrenType;
 type Children = ChildrenType | ChildrenGenerator;
+interface ElementAttrs {
+    [key: string]: any;
+}
 
 export function h(tagName: string, attrs: AttrGenerator | Object = null, children: Children = undefined) {
     const element = document.createElement(tagName);
     if (attrs) {
-        setAttr(element, attrs);
+        setAttrs(element, attrs);
     }
 
     if (children) {
@@ -17,31 +21,53 @@ export function h(tagName: string, attrs: AttrGenerator | Object = null, childre
     return element;
 }
 
-export function setAttr(element: HTMLElement, attr: AttrGenerator | Object | string, value: any = undefined) {
-    if (isFunction(attr)) {
-        attr = attr(element);
-    }
+export function setAttrs(element: HTMLElement, attr: ElementAttrs) {
+    // For each attr, setup a computation. When that computation is triggered, we patch this argument:
+    for (const attrName in attr) {
+        const attrValue = attr[attrName];
 
-    if (isString(attr)) {
-        if (value !== undefined) {
-            if (attr.startsWith('on')) {
-                // TODO: on update we should not update 
-                const eventName = attr.slice(2);
-                element.addEventListener(eventName, value);
-            } else {
-                value = expandValue(value);
-                if (attr === 'style') {
-                    setStyle(element, value);
-                } else if (attr === 'class' || attr === 'className') {
-                    setClass(element, value);
-                } else if (attr) {
-                    element.setAttribute(attr, value);
-                }
-            }
+        // For event avoid listening for changes.
+        if (attrName.startsWith('on')) {
+            const eventName = attrName.slice(2);
+            element.addEventListener(eventName, attrValue);
+            continue;
         }
-    } else {
-        for (const key in attr) {
-            setAttr(element, key, attr[key]);
+
+        // If attr value is an object (for classes and styles we might have to setup a computation)
+        if (isFunction(attrValue) || isObject(attrValue)) {
+            // For all attributes resulting from a computation setup auto update:
+            const computation = s.computeStream(() => {
+                setAttr(element, attrName, attrValue);
+            });
+
+            // Check if the attrValue function has actually registered a dependency:
+            if (computation.dependencies.length) {
+                s.addTransform(computation.computedStream, () => {
+                    setAttr(element, attrName, attrValue);
+                });
+            }
+
+            continue;
+        }
+        
+        // Handle static attributes:
+        setAttr(element, attrName, attrValue);
+    }
+}
+
+export function setAttr(element: HTMLElement, attr: string, value: any) {
+    value = expandValue(value);
+    if (attr === 'style') {
+        setStyle(element, value);
+    } else if (attr === 'class' || attr === 'className') {
+        setClass(element, value);
+    } else if (attr) {
+        if (value === false) {
+            // This disables an attribute:
+            element.removeAttribute(attr);
+        } else {
+            // If value is a boolean, set it to "" to only enable it in DOM.
+            element.setAttribute(attr, value === true ? "" : value);
         }
     }
 }
@@ -62,15 +88,13 @@ export function setClass(element: HTMLElement, className: string | Object) {
     }
 }
 
-export function setStyle(element: HTMLElement, style: Object | string, value: any = undefined) {
-    if (value !== undefined) {
-        value = expandValue(value);
-        element.style[style as string] = value;
-    } else if (isString(style)) {
+export function setStyle(element: HTMLElement, style: Object | string, value?) {
+    if (isString(style)) {
         element.setAttribute('style', style);
     } else {
         for (const key in style) {
-            setStyle(element, key, style[key]);
+            const subStyle = expandValue(style[key]);
+            element.style[style as string] = subStyle;
         }
     }
 }

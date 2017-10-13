@@ -1,24 +1,22 @@
 import {isFunction, remove} from './utils';
 
-type Computation = () => any;
+type Functor = () => any;
 type ValueChangePropagation = (value) => any;
-
 export interface Stream {
     (value?): any;
     _backingValue: any;
     _listeners?: Array<ValueChangePropagation>;
-    _derive?: ValueChangePropagation;
+    _transform?: ValueChangePropagation;
+}
+export interface Computation {
+    computedStream: Stream;
+    dependencies: Stream[];
 }
 
-export interface StreamOptions {
-    transform?: ValueChangePropagation;
-    derive?: ValueChangePropagation;
-}
+let runningComputations: Array<Computation> = [];
 
-let runningComputations: Array<Stream> = [];
-
-function setValueStream(stream, value) {
-    stream._backingValue = stream._derive ? stream._derive(value) : value;
+function setValue(stream, value) {
+    stream._backingValue = stream._transform ? stream._transform(value) : value;
     if (stream._listeners && stream._listeners.length) {
         const dependencies = stream._listeners.slice();
         for (const dep of dependencies) {
@@ -27,30 +25,32 @@ function setValueStream(stream, value) {
     }
 }
 
-export function createValueStream(initialValue?, derive?: ValueChangePropagation) {
+export function createValueStream(initialValue?, transform?: ValueChangePropagation) : Stream {
     let stream = function (value?) {
         if (arguments.length) {
-            setValueStream(stream, value);
+            setValue(stream, value);
         } else {
             // Check to create a new computation dependency:
             if (runningComputations.length) {
-                addListener(stream, runningComputations[runningComputations.length - 1]);
+                const computation = runningComputations[runningComputations.length - 1];
+                addListener(stream, computation.computedStream);
+                computation.dependencies.push(stream);
             }
         }
         
         return stream._backingValue;
     } as Stream;
 
-    if (derive) {
-        stream._derive = derive;
+    if (transform) {
+        stream._transform = transform;
     }
     if (initialValue !== undefined) {
-        setValueStream(stream, initialValue);
+        setValue(stream, initialValue);
     }
     return stream;
 }
 
-export function addListener(stream: Stream, listener: ValueChangePropagation) {
+export function addListener(stream: Stream, listener: ValueChangePropagation) : Functor {
     if (!stream._listeners) {
         stream._listeners = [];
     }
@@ -61,28 +61,49 @@ export function addListener(stream: Stream, listener: ValueChangePropagation) {
     return () => removeListener(stream, listener);
 }
 
-export function removeListener(valueStream: Stream, listener: ValueChangePropagation) {
-    remove(valueStream._listeners, listener);
+export function removeListener(valueStream: Stream, listener: ValueChangePropagation) : Stream {
+    if (valueStream._listeners && valueStream._listeners.length) {
+        remove(valueStream._listeners, listener);
+    }
     return valueStream;
 }
 
-export function map(valueStream: Stream, transform: ValueChangePropagation) {
+export function addTransform(valueStream: Stream, transform: ValueChangePropagation) {
+    if (valueStream._transform) {
+        const firstTransform = valueStream._transform;
+        valueStream._transform = value => transform(firstTransform(value));
+    } else {
+        valueStream._transform = transform;
+    }
+}
+
+export function map(valueStream: Stream, transform: ValueChangePropagation) : Stream {
     const computedStream = createValueStream(valueStream(), transform);
     addListener(valueStream, computedStream);
     return computedStream;
 }
 
-export function computeStream(computation: Computation) {
-    const computedStream = createValueStream();
-    computedStream(compute());
-    computedStream._derive = compute;
-    return computedStream;
+function createComputation() : Computation {
+    return {
+        computedStream: createValueStream(),
+        dependencies: []
+    };
+}
+
+export function computeStream(functor: Functor, transform?: ValueChangePropagation) : Computation {
+    const computation = createComputation();
+    computation.computedStream(compute());
+    addTransform(computation.computedStream, compute);
+    if (transform) {
+        addTransform(computation.computedStream, transform);
+    }    
+    return computation;
 
     function compute() {
-        runningComputations.push(computedStream);
+        runningComputations.push(computation);
         let result, error;
         try {
-            result = computation();
+            result = functor();
         }
         catch (e) {
             error = e;

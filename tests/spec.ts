@@ -19,14 +19,14 @@ describe('stream', function () {
 
             expect(stream._backingValue).toEqual(value);
             expect(stream._listeners).toBeUndefined();
-            expect(stream._derive).toBeUndefined();
+            expect(stream._transform).toBeUndefined();
         });
 
-        it('create with derive', function () {
+        it('create with transform', function () {
             const value = 12;
             const stream = s.createValueStream(value, double);
             expect(stream()).toEqual(value * 2);
-            expect(stream._derive).toEqual(double);
+            expect(stream._transform).toEqual(double);
         });
 
         it('setter', function () {
@@ -64,7 +64,7 @@ describe('stream', function () {
             expect(computed !== v).toEqual(true);
             expect(v._listeners).toContain(computed);
             expect(computed()).toEqual(value * 2);
-            expect(computed._derive).toEqual(double);
+            expect(computed._transform).toEqual(double);
         });
 
         it ('computation', function () {
@@ -73,23 +73,27 @@ describe('stream', function () {
             const vs1 = s.createValueStream(value1);
             const vs2 = s.createValueStream(value2);
 
-            const computed = s.computeStream(() => {
+            const computation = s.computeStream(() => {
                 return vs1() + vs2();
             });
 
-            expect(vs1._listeners).toContain(computed);
-            expect(vs2._listeners).toContain(computed);
-            expect(computed()).toEqual(value1 + value2);
+            const computedStream = computation.computedStream;
+            expect(computation.computedStream).toBeDefined();
+            expect(computation.dependencies.length).toEqual(2);
+
+            expect(vs1._listeners).toContain(computedStream);
+            expect(vs2._listeners).toContain(computedStream);
+            expect(computedStream()).toEqual(value1 + value2);
 
             vs1(0);
-            expect(computed()).toEqual(value2);
+            expect(computedStream()).toEqual(value2);
 
             vs2(7);
-            expect(computed()).toEqual(7);
+            expect(computedStream()).toEqual(7);
 
             // Computed is effectively a read only computed value
-            computed(12);
-            expect(computed()).toEqual(7);
+            computedStream(12);
+            expect(computedStream()).toEqual(7);
         });
     });
     

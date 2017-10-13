@@ -82,22 +82,29 @@ function list (models, nodeCreator, key?, updateFunc?) {
 function streamTest3() {
     let root = h('div', {}, 'Ping!');
 
-    // Can we update per attribute?
+    // Attributes creation:
+    
     let c1 = sp.createValueStream('test-me');
     let ex1 = h('div', { class: c1 });
     let ex2 = h('div', { class: () => c1() });
-    let ex3 = h('div', () => ({ class: c1() }) );
+
+    // We ban this usage!
+    // let ex3 = h('div', () => ({ class: c1() }) );
 
     // Multi dependencies: can we avoid double dispatch? need to 
     // update in a setTimeout?
     let s1 = sp.createValueStream('width: 200px;');
     let ex4 = h('div', { class: c1, style: s1 });
     let ex5 = h('div', { class: () => c1(), style: () => s1 });
-    let ex6 = h('div', () => ({ class: c1(), style: s1() }));
+
+    // We ban this usage!
+    // let ex6 = h('div', () => ({ class: c1(), style: s1() }));
 
     let isDisabled = sp.createValueStream(true);
     // In case of isDisabled === false => we need to remove the disabled attr!
     let ex7 = h('div', { disabled: isDisabled });
+
+    // Create children:
 
     let title = sp.createValueStream('this is my title')
     let ex8 = h('div', {}, title);
@@ -129,6 +136,19 @@ function streamTest3() {
 }
 // streamTest3();
 
-let c1 = sp.createValueStream('test-me');
-let ex1 = h('div', { class: c1 }, 'test me!');
-document.body.appendChild(ex1);
+function randomPercent() {
+    return Math.ceil(Math.random() * 100);
+}
+
+function autoUpdateAttrTest () {
+    let c1 = sp.createValueStream('Rado : ' + randomPercent());
+
+    let text;
+    let root = h('div', {}, [
+        h('button', { onclick: () => c1('Rado : ' + randomPercent()) }, 'randomize'),
+        h('input', { value: c1 }),
+    ]);
+
+    document.body.appendChild(root);
+}
+autoUpdateAttrTest();

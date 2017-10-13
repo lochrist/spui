@@ -2,6 +2,10 @@ export function isFunction(obj): obj is Function {
     return typeof obj === 'function'; 
 }
 
+export function isObject(obj): obj is Object {
+    return typeof obj === 'object';
+}
+
 export function isString(obj): obj is string { 
     return typeof obj === 'string'; 
 }
