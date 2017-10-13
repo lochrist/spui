@@ -1,4 +1,5 @@
 import {isFunction} from '../spui/utils';
+import {h} from '../spui/h';
 import * as s from '../spui/stream';
 
 function double(value) { 
@@ -100,8 +101,87 @@ describe('stream', function () {
     
 });
 
+let _id = 0;
+function getId() {
+    return 'i' + (_id++);
+}
+
+function itt (title, itExecutor) {
+    it(title, () => {
+        itExecutor(title);
+    })
+}
+
 describe('dom generation', function () {
-    it('test1', function () {
-        expect(true).toBeTruthy();
+    describe('create element with static attributes', function () {
+        let testDomRoot: HTMLElement;
+        beforeAll(function () {
+            testDomRoot = document.createElement('div');
+            testDomRoot.setAttribute('style', 'padding-top: 10px;');
+            document.body.appendChild(testDomRoot);
+        });
+
+        function createElement(tagName, attrs, children?) {
+            const id = getId();
+            attrs.id = id;
+            if (tagName !== 'div') {
+                attrs.style = attrs.style || 'display: block;';
+            }
+            const el = h(tagName, attrs, children);
+            expect(el instanceof HTMLElement).toEqual(true);
+            testDomRoot.appendChild(el);
+            expect(el as Element).toEqual(document.querySelector('#' + id));
+
+            return el;
+        }
+
+        itt('empty', function (title) {
+            const el = h('div');
+            expect(el instanceof HTMLElement).toEqual(true);
+            testDomRoot.appendChild(el);
+            expect(testDomRoot.firstChild).toEqual(el);
+        });
+
+        itt('with text node', function (title) {
+            const el = createElement('div', {}, title);
+            expect(el.textContent).toEqual(title);
+        });
+
+        itt('with style', function (title) {
+            const el = createElement('div', {style: 'color: red;'}, title);
+            expect(el.style['color']).toEqual('red')
+        });
+
+        itt('with style object', function (title) {
+            const el = createElement('div', { style: {color: 'red'} }, title);
+            expect(el.style['color']).toEqual('red')
+        });
+
+        itt('with class', function (title) {
+            const c = 'dummy';
+            const el = createElement('div', { class: c }, title);
+            expect(el.className).toEqual(c);
+        });
+
+        itt('class object', function (title) {
+            const c = { 'red-text': true, ping: false };
+            const el = createElement('div', { class: c }, title);
+            expect(el.className).toEqual('red-text ');
+        });
+
+        itt('with event', function (title) {
+            let wasClicked = false;
+            const onclick = () => {
+                wasClicked = true;
+                console.log('clicked!')
+            };
+            const el = createElement('button', { onclick }, title);
+            el.click();
+            expect(wasClicked).toEqual(true);
+        });
+
+        itt('with boolean attributes', function (title) {
+            const el = createElement('input', { disabled: true, readonly: false }, title);
+        });
     });
 });

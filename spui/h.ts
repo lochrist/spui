@@ -93,8 +93,8 @@ export function setStyle(element: HTMLElement, style: Object | string, value?) {
         element.setAttribute('style', style);
     } else {
         for (const key in style) {
-            const subStyle = expandValue(style[key]);
-            element.style[style as string] = subStyle;
+            const styleValue = expandValue(style[key]);
+            element.style[key] = styleValue;
         }
     }
 }

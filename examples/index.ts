@@ -83,7 +83,7 @@ function streamTest3() {
     let root = h('div', {}, 'Ping!');
 
     // Attributes creation:
-    
+
     let c1 = sp.createValueStream('test-me');
     let ex1 = h('div', { class: c1 });
     let ex2 = h('div', { class: () => c1() });
@@ -141,14 +141,18 @@ function randomPercent() {
 }
 
 function autoUpdateAttrTest () {
-    let c1 = sp.createValueStream('Rado : ' + randomPercent());
+    let c1 = sp.createValueStream(randomPercent());
+    let c2 = sp.createValueStream(randomPercent());
 
     let text;
     let root = h('div', {}, [
-        h('button', { onclick: () => c1('Rado : ' + randomPercent()) }, 'randomize'),
-        h('input', { value: c1 }),
+        h('button', { onclick: () => {
+            c1(randomPercent());
+            c2(randomPercent());
+        } }, 'randomize'),
+        h('input', { value: () => "Rando: " + c1() + " " + c2() }),
     ]);
 
     document.body.appendChild(root);
 }
-autoUpdateAttrTest();
+// autoUpdateAttrTest();
