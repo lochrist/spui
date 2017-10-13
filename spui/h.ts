@@ -1,4 +1,4 @@
-import {isFunction, isArray, isString, isObject, expandValue} from './utils';
+import {isFunction, isString, isObject, expandValue} from './utils';
 import * as s from './stream';
 
 type AttrGenerator = (HTMLElement) => Object;
@@ -103,7 +103,7 @@ export function setChildren(element: HTMLElement, children: Children) {
     if (isFunction(children)) {
         children = children(element);
     }
-    if (isArray(children)) {
+    if (Array.isArray(children)) {
         for (const child of children) {
             appendChild(element, child);
         }

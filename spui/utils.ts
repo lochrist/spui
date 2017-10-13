@@ -21,5 +21,3 @@ export function remove(array: Array<any>, value) {
     }
     return array;
 }
-
-export const isArray = Array.isArray;
