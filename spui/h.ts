@@ -1,15 +1,8 @@
 import {isFunction, isArray, isString, expandValue} from './utils';
 
-interface AttrGenerator {
-    (HTMLElement): Object;
-}
-
-type ChildrenType = HTMLElement | Array<HTMLElement> | string | Array < string >;
-
-interface ChildrenGenerator {
-    (HTMLElement): ChildrenType;
-}
-
+type AttrGenerator = (HTMLElement) => Object;
+type ChildrenType = HTMLElement | Array<any> | string;
+type ChildrenGenerator = (HTMLElement) => ChildrenType;
 type Children = ChildrenType | ChildrenGenerator;
 
 export function h(tagName: string, attrs: AttrGenerator | Object = null, children: Children = undefined) {
