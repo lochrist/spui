@@ -58,6 +58,10 @@ body { overflow-y: scroll; }
 .jasmine_html-reporter .jasmine-stack-trace { margin: 5px 0 0 0; max-height: 224px; overflow: auto; line-height: 18px; color: #666; border: 1px solid #ddd; background: white; white-space: pre; }
 
 /** Tests specific classes */
-.red-text {
-    color: red;
+.blue-text {
+    color: blue;
+}
+
+.green-text {
+    color: green;
 }

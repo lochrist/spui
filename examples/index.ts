@@ -118,11 +118,15 @@ function streamTest3() {
         h('div'),
         title // Replace only this one?
     ]);
+
+    // We ban this usage!
+    /*
     let ex13 = h('div', {}, () => [ // Set all children and replace eveything? Diffing with the dom?
         'ping',
         h('div'),
         title()
     ]);
+    */
 
     let todos = [{ title: 'ping', done: false }, { title: 'pong', done: true }]
     let ex14 = h('ul', {}, list(todos, (todo, key) => {
@@ -150,9 +154,28 @@ function autoUpdateAttrTest () {
             c1(randomPercent());
             c2(randomPercent());
         } }, 'randomize'),
-        h('input', { value: () => "Rando: " + c1() + " " + c2() }),
+        h('input', { value: () => "Rando: " + c1() + " " + c2() })
     ]);
 
     document.body.appendChild(root);
 }
 // autoUpdateAttrTest();
+
+function autoUpdateChildrenTest() {
+    let c1 = sp.createValueStream(randomPercent());
+    let c2 = sp.createValueStream(randomPercent());
+
+    let text;
+    let root = h('div', {}, [
+        h('button', {
+            onclick: () => {
+                c1(randomPercent());
+                c2(randomPercent());
+            }
+        }, 'randomize'),
+        h('div', {}, () => "Rando: " + c1() + " " + c2())
+    ]);
+
+    document.body.appendChild(root);
+}
+autoUpdateChildrenTest();

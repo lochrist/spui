@@ -112,6 +112,12 @@ function itt (title, itExecutor) {
     })
 }
 
+function xitt(title, itExecutor) {
+    xit(title, () => {
+        itExecutor(title);
+    })
+}
+
 describe('dom generation', function () {
     let testDomRoot: HTMLElement;
     beforeAll(function () {
@@ -142,19 +148,19 @@ describe('dom generation', function () {
             expect(testDomRoot.firstChild).toEqual(el);
         });
 
-        itt('with text node', function (title) {
+        itt('with single children text node', function (title) {
             const el = createElement('div', {}, title);
             expect(el.textContent).toEqual(title);
         });
 
         itt('with style', function (title) {
-            const el = createElement('div', {style: 'color: red;'}, title);
-            expect(el.style['color']).toEqual('red')
+            const el = createElement('div', {style: 'color: blue;'}, title);
+            expect(el.style['color']).toEqual('blue');
         });
 
         itt('with style object', function (title) {
-            const el = createElement('div', { style: {color: 'red'} }, title);
-            expect(el.style['color']).toEqual('red')
+            const el = createElement('div', { style: {color: 'blue'} }, title);
+            expect(el.style['color']).toEqual('blue');
         });
 
         itt('with class', function (title) {
@@ -164,15 +170,15 @@ describe('dom generation', function () {
         });
 
         itt('with class object', function (title) {
-            const c = { 'red-text': true, ping: false };
+            const c = { 'blue-text': true, ping: false };
             const el = createElement('div', { class: c }, title);
-            expect(el.className).toEqual('red-text');
+            expect(el.className).toEqual('blue-text');
         });
 
         itt('with class object2', function (title) {
-            const c = { 'red-text': true, pong: true, ping: false };
+            const c = { 'blue-text': true, pong: true, ping: false };
             const el = createElement('div', { class: c }, title);
-            expect(el.className).toEqual('red-text pong');
+            expect(el.className).toEqual('blue-text pong');
         });
 
         itt('with event', function (title) {
@@ -194,15 +200,115 @@ describe('dom generation', function () {
     });
 
     describe('create elements (attributes auto-binding)', function () {
+        itt('with style', function (title) {
+            const style = s.createValueStream('color: blue;');
+            const el = createElement('div', { style: style }, title);
+            expect(el.style['color']).toEqual('blue');
 
+            style('color: green');
+            expect(el.style['color']).toEqual('green');
+        });
+
+        itt('with style object', function (title) {
+            const color = s.createValueStream('blue');
+            const fontStyle = s.createValueStream('italic');
+            const el = createElement('div', { style: { color, 'font-style': fontStyle } }, title);
+            expect(el.style['color']).toEqual('blue');
+            expect(el.style['font-style']).toEqual('italic');
+
+            color('green');
+            expect(el.style['color']).toEqual('green');
+
+            fontStyle('oblique');
+            expect(el.style['font-style']).toEqual('oblique');
+        });
+
+        itt('with class', function (title) {
+            const c = s.createValueStream('blue-text');
+            const el = createElement('div', { class: () => 'pow ' + c() }, title);
+            expect(el.className).toEqual('pow blue-text');
+
+            c('green-text');
+            expect(el.className).toEqual('pow green-text');
+        });
+
+        itt('with class object', function (title) {
+            const blueTextEnabled = s.createValueStream(true);
+            const pingEnabled = s.createValueStream(false);
+            const c = { 'blue-text': blueTextEnabled, ping: pingEnabled };
+            const el = createElement('div', { class: c }, title);
+            expect(el.className).toEqual('blue-text');
+
+            blueTextEnabled(false);
+            expect(el.className).toEqual('');
+
+            pingEnabled(true);
+            expect(el.className).toEqual('ping');
+        });
+
+        itt('with boolean attributes', function (title) {
+            const isDisabled = s.createValueStream(true);
+            const isReadonly = s.createValueStream(false);
+
+            const el = createElement('input', { disabled: isDisabled, readonly: isReadonly }, title);
+            expect(el.attributes['disabled']).toBeDefined();
+            expect(el.attributes['readonly']).toBeUndefined();
+
+            isDisabled(false);
+            expect(el.attributes['disabled']).toBeUndefined();
+
+            isReadonly(true);
+            expect(el.attributes['readonly']).toBeDefined();
+        });
+
+        itt('with value', function (title) {
+            const value = s.createValueStream('this is my value');
+            const el = createElement('input', { value }, title) as HTMLInputElement;
+            expect(el.value).toEqual('this is my value');
+
+            value('new value');
+            expect(el.value).toEqual('new value');
+        });
     });
 
-    describe('create elements with children', function () {
+    describe('create elements with children (static)', function () {
+        itt('with multiple text node', function (title) {
+            const childrenText = ['this', ' is', ' something!'];
+            const el = createElement('div', {}, childrenText);
+            expect(el.children.length).toEqual(0);
+            expect(el.childNodes.length).toEqual(3);
+            expect(el.textContent).toEqual(childrenText.join(''));
+        });
 
+        itt('with multiple children', function (title) {
+            const childrenText = ['this is', ' something'];
+            const el = createElement('div', {}, [
+                childrenText[0],
+                h('button', {}, 'this is a button'),
+                childrenText[1]
+            ]);
+            expect(el.children.length).toEqual(1);
+            expect(el.childNodes.length).toEqual(3);
+            expect(el.childNodes[0].nodeValue).toEqual(childrenText[0]);
+            expect(el.childNodes[1].nodeName).toEqual('BUTTON');
+            expect(el.childNodes[1].textContent).toEqual('this is a button');
+            expect(el.childNodes[2].nodeValue).toEqual(childrenText[1]);
+        });
     });
 
     describe('create elements with children (auto-binding)', function () {
+        itt('single child auto binding', function (title) {
+            const values = ['value1', 'value2', 'value3']
+            const singleChildValue = s.createValueStream(values[0]);
+            const el = createElement('div', {}, parentElement => singleChildValue());
+            expect(el.textContent).toEqual(values[0]);
 
+            singleChildValue(values[1]);
+            expect(el.textContent).toEqual(values[1]);
+
+            singleChildValue(values[2]);
+            expect(el.textContent).toEqual(values[2]);
+        });
     });
 
     describe('create elements with children-list', function () {

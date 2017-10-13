@@ -2,9 +2,9 @@ import {isFunction, isString, isObject, expandValue} from './utils';
 import * as s from './stream';
 
 type AttrGenerator = (HTMLElement) => Object;
-type ChildrenType = HTMLElement | Array<any> | string;
-type ChildrenGenerator = (HTMLElement) => ChildrenType;
-type Children = ChildrenType | ChildrenGenerator;
+type ChildGenerator = (HTMLElement) => HTMLElement | string;
+type Child = string | HTMLElement | ChildGenerator;
+type Children = Array<any> | Child;
 interface ElementAttrs {
     [key: string]: any;
 }
@@ -81,7 +81,7 @@ export function setClass(element: HTMLElement, className: string | Object) {
             let value = className[key];
             value = expandValue(value);
             if (value) {
-                newClass += (newClass !== '' ? ' ' : '' ) + key;
+                newClass += (newClass == '' ? '' : ' ' ) + key;
             }
         }
         element.setAttribute('class', newClass);
@@ -100,9 +100,6 @@ export function setStyle(element: HTMLElement, style: Object | string, value?) {
 }
 
 export function setChildren(element: HTMLElement, children: Children) {
-    if (isFunction(children)) {
-        children = children(element);
-    }
     if (Array.isArray(children)) {
         for (const child of children) {
             appendChild(element, child);
@@ -112,9 +109,26 @@ export function setChildren(element: HTMLElement, children: Children) {
     }
 }
 
-function appendChild(element: HTMLElement, child: string | HTMLElement) {
+function appendChild(element: HTMLElement, child: Child) {
     // TODO: use documentFragment!
-    if (isString(child)) {
+    
+    if (isFunction(child)) {
+        let resolvedChild: HTMLElement | string;
+        const computation = s.computeStream(() => {
+            resolvedChild = child(element);
+        });
+
+        let childNode = isString(resolvedChild) ? document.createTextNode(resolvedChild) : resolvedChild;
+        element.appendChild(childNode);
+
+        if (computation.dependencies.length) {
+            s.addTransform(computation.computedStream, () => {
+                const oldChildNode = childNode;
+                childNode = isString(resolvedChild) ? document.createTextNode(resolvedChild) : resolvedChild;
+                element.replaceChild(childNode, oldChildNode);
+            });
+        }
+    } else if (isString(child)) {
         element.appendChild(document.createTextNode(child));
     } else {
         element.appendChild(child);
