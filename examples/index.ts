@@ -127,4 +127,8 @@ function streamTest3() {
 
     document.body.appendChild(root);
 }
-streamTest3();
+// streamTest3();
+
+let c1 = sp.createValueStream('test-me');
+let ex1 = h('div', { class: c1 }, 'test me!');
+document.body.appendChild(ex1);
