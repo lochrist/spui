@@ -1,12 +1,14 @@
 import {isFunction, remove} from './utils';
 
 type Functor = () => any;
-type ValueChangePropagation = (value) => any;
-export interface Stream {
+type Transform = (value) => any;
+export interface GetterSetter {
     (value?): any;
+}
+export interface Stream extends GetterSetter {
     _backingValue: any;
-    _listeners?: Array<ValueChangePropagation>;
-    _transform?: ValueChangePropagation;
+    _listeners?: Array<Transform>;
+    _transform?: Transform;
 }
 export interface Computation {
     computedStream: Stream;
@@ -25,7 +27,7 @@ function setValue(stream, value) {
     }
 }
 
-export function createValueStream(initialValue?, transform?: ValueChangePropagation) : Stream {
+export function createValueStream(initialValue?, transform?: Transform) : Stream {
     let stream = function (value?) {
         if (arguments.length) {
             setValue(stream, value);
@@ -50,25 +52,24 @@ export function createValueStream(initialValue?, transform?: ValueChangePropagat
     return stream;
 }
 
-export function addListener(stream: Stream, listener: ValueChangePropagation) : Functor {
+export function addListener(stream: Stream, listener: Transform) : Functor {
     if (!stream._listeners) {
         stream._listeners = [];
     }
     if (stream._listeners.indexOf(listener) === -1) {
         stream._listeners.push(listener);
     }
-    
     return () => removeListener(stream, listener);
 }
 
-export function removeListener(valueStream: Stream, listener: ValueChangePropagation) : Stream {
+export function removeListener(valueStream: Stream, listener: Transform) : Stream {
     if (valueStream._listeners && valueStream._listeners.length) {
         remove(valueStream._listeners, listener);
     }
     return valueStream;
 }
 
-export function addTransform(valueStream: Stream, transform: ValueChangePropagation) {
+export function addTransform(valueStream: Stream, transform: Transform) {
     if (valueStream._transform) {
         const firstTransform = valueStream._transform;
         valueStream._transform = value => transform(firstTransform(value));
@@ -77,7 +78,7 @@ export function addTransform(valueStream: Stream, transform: ValueChangePropagat
     }
 }
 
-export function map(valueStream: Stream, transform: ValueChangePropagation) : Stream {
+export function map(valueStream: Stream, transform: Transform) : Stream {
     const computedStream = createValueStream(valueStream(), transform);
     addListener(valueStream, computedStream);
     return computedStream;
@@ -90,7 +91,7 @@ function createComputation() : Computation {
     };
 }
 
-export function computeStream(functor: Functor, transform?: ValueChangePropagation) : Computation {
+export function computeStream(functor: Functor, transform?: Transform) : Computation {
     const computation = createComputation();
     computation.computedStream(compute());
     addTransform(computation.computedStream, compute);

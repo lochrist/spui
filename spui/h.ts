@@ -81,7 +81,7 @@ export function setClass(element: HTMLElement, className: string | Object) {
             let value = className[key];
             value = expandValue(value);
             if (value) {
-                newClass += key + ' ';
+                newClass += (newClass !== '' ? ' ' : '' ) + key;
             }
         }
         element.setAttribute('class', newClass);

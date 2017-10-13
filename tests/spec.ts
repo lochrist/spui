@@ -113,28 +113,28 @@ function itt (title, itExecutor) {
 }
 
 describe('dom generation', function () {
-    describe('create element with static attributes', function () {
-        let testDomRoot: HTMLElement;
-        beforeAll(function () {
-            testDomRoot = document.createElement('div');
-            testDomRoot.setAttribute('style', 'padding-top: 10px;');
-            document.body.appendChild(testDomRoot);
-        });
+    let testDomRoot: HTMLElement;
+    beforeAll(function () {
+        testDomRoot = document.createElement('div');
+        testDomRoot.setAttribute('style', 'padding-top: 10px;');
+        document.body.appendChild(testDomRoot);
+    });
 
-        function createElement(tagName, attrs, children?) {
-            const id = getId();
-            attrs.id = id;
-            if (tagName !== 'div') {
-                attrs.style = attrs.style || 'display: block;';
-            }
-            const el = h(tagName, attrs, children);
-            expect(el instanceof HTMLElement).toEqual(true);
-            testDomRoot.appendChild(el);
-            expect(el as Element).toEqual(document.querySelector('#' + id));
-
-            return el;
+    function createElement(tagName, attrs, children?) {
+        const id = getId();
+        attrs.id = id;
+        if (tagName !== 'div') {
+            attrs.style = attrs.style || 'display: block;';
         }
+        const el = h(tagName, attrs, children);
+        expect(el instanceof HTMLElement).toEqual(true);
+        testDomRoot.appendChild(el);
+        expect(el as Element).toEqual(document.querySelector('#' + id));
 
+        return el;
+    }
+
+    describe('create elements (static attributes)', function () {
         itt('empty', function (title) {
             const el = h('div');
             expect(el instanceof HTMLElement).toEqual(true);
@@ -163,10 +163,16 @@ describe('dom generation', function () {
             expect(el.className).toEqual(c);
         });
 
-        itt('class object', function (title) {
+        itt('with class object', function (title) {
             const c = { 'red-text': true, ping: false };
             const el = createElement('div', { class: c }, title);
-            expect(el.className).toEqual('red-text ');
+            expect(el.className).toEqual('red-text');
+        });
+
+        itt('with class object2', function (title) {
+            const c = { 'red-text': true, pong: true, ping: false };
+            const el = createElement('div', { class: c }, title);
+            expect(el.className).toEqual('red-text pong');
         });
 
         itt('with event', function (title) {
@@ -182,6 +188,29 @@ describe('dom generation', function () {
 
         itt('with boolean attributes', function (title) {
             const el = createElement('input', { disabled: true, readonly: false }, title);
+            expect(el.attributes['disabled']).toBeDefined();
+            expect(el.attributes['readonly']).toBeUndefined();
         });
     });
+
+    describe('create elements (attributes auto-binding)', function () {
+
+    });
+
+    describe('create elements with children', function () {
+
+    });
+
+    describe('create elements with children (auto-binding)', function () {
+
+    });
+
+    describe('create elements with children-list', function () {
+
+    });
+
+    describe('create elements with children-list (auto-binding)', function () {
+
+    });
+
 });
