@@ -297,7 +297,7 @@ describe('dom generation', function () {
     });
 
     describe('create elements with children (auto-binding)', function () {
-        itt('single child auto binding', function (title) {
+        itt('single child', function (title) {
             const values = ['value1', 'value2', 'value3']
             const singleChildValue = s.createValueStream(values[0]);
             const el = createElement('div', {}, parentElement => singleChildValue());
@@ -306,8 +306,47 @@ describe('dom generation', function () {
             singleChildValue(values[1]);
             expect(el.textContent).toEqual(values[1]);
 
-            singleChildValue(values[2]);
-            expect(el.textContent).toEqual(values[2]);
+            singleChildValue(title);
+            expect(el.textContent).toEqual(title);
+        });
+
+        itt('3 text children', function (title) {
+            const values = ['value1', 'value2', 'value3']
+            const values2 = ['value11', 'value22', 'value32']
+            const nodeData1 = s.createValueStream(values[0]);
+            const nodeData2 = s.createValueStream(values[1]);
+            const nodeData3 = s.createValueStream(values[2]);
+            const el = createElement('div', {}, [
+                parentElement => nodeData1(),
+                parentElement => nodeData2(),
+                parentElement => nodeData3(),
+            ]);
+            expect(el.childNodes.length).toEqual(3);
+            expect(el.childNodes[0].nodeValue).toEqual(values[0]);
+
+            nodeData1(values2[0]);
+            expect(el.childNodes[0].nodeValue).toEqual(values2[0]);
+
+            nodeData3(values2[2]);
+            expect(el.childNodes[2].nodeValue).toEqual(values2[2]);
+        });
+
+        itt('children attr', function (title) {
+            const isDisabled = s.createValueStream(true);
+            const text = s.createValueStream('before');
+            let el;
+            const root = createElement('div', {}, 
+                el = h('div', {disabled: isDisabled}, parent => text())
+            );
+
+            expect(el.textContent).toEqual(text());
+            expect(el.attributes['disabled']).toBeDefined();
+
+            isDisabled(false);
+            expect(el.attributes['disabled']).toBeUndefined();
+
+            text(title);
+            expect(el.textContent).toEqual(title);
         });
     });
 
