@@ -134,3 +134,37 @@ function appendChild(element: HTMLElement, child: Child) {
         element.appendChild(child);
     }
 }
+
+class NodeList {
+    models: any[];
+    nodeCreator: ChildGenerator;
+    key: string;
+    updateFunc: (HTMLElement) => void;
+    constructor(models: any[], nodeCreator: ChildGenerator, key?: string, updateFunc?: (HTMLElement) => void) {
+        this.models = models;
+        this.nodeCreator = nodeCreator;
+        this.key = key;
+        this.updateFunc = updateFunc;
+    }
+
+    update(models: any[]) {
+
+    }
+
+    updateModel(model: any) {
+        
+    }
+
+    remove(key: number | string) {
+
+    }
+
+    add(model: any, key: number | string) {
+
+    }
+}
+
+export function list(tagName, attrs, models, nodeCreator: ChildGenerator, key?, updateFunc?) {
+    const parent = h(tagName, attrs);
+
+}

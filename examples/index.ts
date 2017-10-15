@@ -178,4 +178,10 @@ function autoUpdateChildrenTest() {
 
     document.body.appendChild(root);
 }
-autoUpdateChildrenTest();
+// autoUpdateChildrenTest();
+
+function observableArray() {
+    
+}
+
+observableArray()
