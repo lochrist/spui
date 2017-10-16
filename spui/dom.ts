@@ -1,4 +1,4 @@
-import { isFunction, isString, isObject, expandValue, StringKeyMap} from './utils';
+import { isNode, isFunction, isString, isObject, expandValue, StringKeyMap} from './utils';
 import * as s from './stream';
 import {ObservableArray} from './observable-array';
 
@@ -124,10 +124,10 @@ function appendChild(element: HTMLElement, child: Child) {
                 element.replaceChild(childNode, oldChildNode);
             });
         }
-    } else if (isString(child)) {
-        element.appendChild(document.createTextNode(child));
-    } else {
+    } else if (isNode(child)) {
         element.appendChild(child);
+    } else {
+        element.appendChild(document.createTextNode(child));
     }
 }
 

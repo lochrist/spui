@@ -6,6 +6,10 @@ export function isFunction(obj): obj is Function {
     return typeof obj === 'function'; 
 }
 
+export function isNode(obj): obj is Node {
+    return obj.nodeType;
+}
+
 export function isObject(obj): obj is Object {
     return typeof obj === 'object';
 }

@@ -43,11 +43,11 @@ export class Store {
         return this;
     }
     run() {
-        this.data.push(this.buildData());
+        this.data.push.apply(this.data, this.buildData());
         this.selected(undefined);
     }
     add() {
-        this.data.push(this.buildData(1000));
+        this.data.push.apply(this.data, this.buildData(1000));
     }
     update() {
         this.updateData();
@@ -56,7 +56,7 @@ export class Store {
         this.selected(id);
     }
     runLots() {
-        this.data.push(this.buildData(10000));
+        this.data.push.apply(this.data, this.buildData(10000));
         this.selected(undefined);
     }
     clear() {

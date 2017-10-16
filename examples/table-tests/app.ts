@@ -80,15 +80,15 @@ export class App {
 
             // TODO handle selected
             h('table', {class: 'table table-hover table-striped test-data'},
-                this.table = nodeList('tbody', {}, this.store.data, (element) => {
+                this.table = nodeList('tbody', {}, this.store.data, (tableElement, data) => {
                     return h('tr', {}, [
-                        h('td', {class: 'col-md-1'}),
+                        h('td', {class: 'col-md-1'}, data.id),
                         h('td', {class: 'col-md-4'},
-                            h('a', { onclick: e => this.select(element.id) })
+                            h('a', { onclick: e => this.select(data.id) }, () => data.label())
                         ),
                         h('td', {class: 'col-md-1'},
-                            h('a', { onclick: e => this.remove(element.id) },
-                                h('span.glyphicon.glyphicon-remove', { 'aria-hidden': true })
+                            h('a', { onclick: e => this.remove(data.id) },
+                                h('span', {class: 'glyphicon glyphicon-remove', 'aria-hidden': true })
                             )
                         ),
                         h('td', {class: 'col-md-6'})
@@ -102,52 +102,41 @@ export class App {
     add() {
         startMeasure('add');
         this.store.add();
-        this.render();
         stopMeasure();
     }
     remove(id) {
         startMeasure('remove');
         this.store.delete(id);
-        this.render();
         stopMeasure();
     }
     select(id) {
         startMeasure('select');
         this.store.select(id);
-        this.render();
         stopMeasure();
     }
     run() {
         startMeasure('run');
         this.store.run();
-        this.render();
         stopMeasure();
     }
     update() {
         startMeasure('update');
         this.store.update();
-        this.render();
         stopMeasure();
     }
     runLots() {
         startMeasure('runLots');
         this.store.runLots();
-        this.render();
         stopMeasure();
     }
     clear() {
         startMeasure('clear');
         this.store.clear();
-        this.render();
         stopMeasure();
     }
     swapRows() {
         startMeasure('swapRows');
         this.store.swapRows();
-        this.render();
         stopMeasure();
-    }
-    render() {
-        this.table.update(this.store.data);
     }
 }
