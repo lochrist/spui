@@ -1,46 +1,53 @@
+import {observableArray, ObservableArray} from '../../spui/observable-array';
+import * as s from '../../spui/stream';
+
 function random(max) {
     return Math.round(Math.random() * 1000) % max;
 }
 
+const adjectives = ['pretty', 'large', 'big', 'small', 'tall', 'short', 'long', 'handsome', 'plain', 'quaint', 'clean', 'elegant', 'easy', 'angry', 'crazy', 'helpful', 'mushy', 'odd', 'unsightly', 'adorable', 'important', 'inexpensive', 'cheap', 'expensive', 'fancy'];
+const colours = ['red', 'yellow', 'blue', 'green', 'pink', 'brown', 'purple', 'brown', 'white', 'black', 'orange'];
+const nouns = ['table', 'chair', 'house', 'bbq', 'desk', 'car', 'pony', 'cookie', 'sandwich', 'burger', 'pizza', 'mouse', 'keyboard'];
 export class Store {
     backup: any[];
-    data: any[];
-    selected: any;
+    data: ObservableArray<any>;
+    selected: s.Stream;
     id: number;
     constructor() {
-        this.data = [];
-        this.selected = undefined;
+        this.data = observableArray();
+        this.selected = s.createValueStream();
         this.id = 1;
     }
     buildData(count = 1000) {
-        const adjectives = ['pretty', 'large', 'big', 'small', 'tall', 'short', 'long', 'handsome', 'plain', 'quaint', 'clean', 'elegant', 'easy', 'angry', 'crazy', 'helpful', 'mushy', 'odd', 'unsightly', 'adorable', 'important', 'inexpensive', 'cheap', 'expensive', 'fancy'];
-        const colours = ['red', 'yellow', 'blue', 'green', 'pink', 'brown', 'purple', 'brown', 'white', 'black', 'orange'];
-        const nouns = ['table', 'chair', 'house', 'bbq', 'desk', 'car', 'pony', 'cookie', 'sandwich', 'burger', 'pizza', 'mouse', 'keyboard'];
         const data = [];
         for (let i = 0; i < count; i++) { 
+            const label = adjectives[random(adjectives.length)] + ' ' + colours[random(colours.length)] + ' ' + nouns[random(nouns.length)];
             data.push({ 
-                id: this.id++, 
-                label: adjectives[random(adjectives.length)] + ' ' + colours[random(colours.length)] + ' ' + nouns[random(nouns.length)] 
+                id: this.id++,
+                label: s.createValueStream(label)
             }); 
         }
         return data;
     }
     updateData(mod = 10) {
-        for (let i = 0; i < this.data.length; i += 10) {
-            this.data[i] = Object.assign({}, this.data[i], { label: this.data[i].label + ' !!!' });
-        }
+        this.data.applyChanges(() => {
+            for (let i = 0; i < this.data.length; i += 10) {
+                // this.data[i] = Object.assign({}, this.data[i], { label: this.data[i].label + ' !!!' });
+                this.data[i].label(this.data[i].label() + ' !!!');
+            }
+        });
     }
     delete(id) {
         const idx = this.data.findIndex(d => d.id == id);
-        this.data = this.data.filter((e, i) => i != idx);
+        this.data.splice(idx, 1);
         return this;
     }
     run() {
-        this.data = this.buildData();
+        this.data.push(this.buildData());
         this.selected = undefined;
     }
     add() {
-        this.data = this.data.concat(this.buildData(1000));
+        this.data.push(this.buildData(1000));
     }
     update() {
         this.updateData();
@@ -48,29 +55,22 @@ export class Store {
     select(id) {
         this.selected = id;
     }
-    hideAll() {
-        this.backup = this.data;
-        this.data = [];
-        this.selected = undefined;
-    }
-    showAll() {
-        this.data = this.backup;
-        this.backup = null;
-        this.selected = undefined;
-    }
     runLots() {
-        this.data = this.buildData(10000);
+        this.data.push(this.buildData(10000));
         this.selected = undefined;
     }
     clear() {
-        this.data = [];
+        this.data.splice(0);
         this.selected = undefined;
     }
     swapRows() {
         if (this.data.length > 10) {
-            const a = this.data[4];
-            this.data[4] = this.data[9];
-            this.data[9] = a;
+            this.data.applyChanges(() => {
+                const a = this.data[4];
+                const b = this.data[9];
+                this.data.splice(4, 1, b);
+                this.data.splice(9, 1, a);
+            });
         }
     }
 }

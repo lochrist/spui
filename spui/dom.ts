@@ -204,8 +204,11 @@ class SyncNodeList {
                 break;
             }
             case 'changes': {
-                throw new Error('Pow needs to be implemented');
-                // break;
+                const changes = args;
+                for (const change of changes) {
+                    this.onModelChange(change[0], change[1]);
+                }
+                break;
             }
         }
     }

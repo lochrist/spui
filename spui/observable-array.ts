@@ -9,15 +9,20 @@ export class ObservableArray<T> extends Array<T> {
         this.changes = null;
     }
 
-    beginChanges() {
+    applyChanges(changeFunctor: () => any) {
         this.changes = [];
-    }
-
-    endChanges() {
+        let result;
+        try {
+            result = changeFunctor();
+        } catch (e) {
+            this.changes = null;
+            throw e;
+        }
         if (this.changes) {
             this.emit('changes', this.changes);
         }
         this.changes = null;
+        return result;
     }
 
     addListener(callback: ArrayListener) {

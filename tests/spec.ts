@@ -494,6 +494,16 @@ describe('dom generation', function () {
             d.models.unshift(createModel(), createModel());
             validateDomList(d);
         });
+
+        itt('changes', function (title) {
+            const d = setupNodeList(title);
+            d.models.applyChanges(() => {
+                d.models.push(createModel(), createModel());
+                d.models.unshift(createModel(), createModel());
+            });
+            
+            validateDomList(d);
+        });
     });
 
     describe('node-list (auto-binding)', function () {
