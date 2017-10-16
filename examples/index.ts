@@ -201,57 +201,28 @@ function observableArray() {
 // observableArray();
 
 function spuiTodo () {
-    let newTitle = sp.createValueStream("");
-    let todos = sp.observableArray();
-    let addTodo = () => {
+    const newTitle = sp.createValueStream('');
+    const todos = sp.observableArray();
+    const addTodo = () => {
         todos.push({ title: sp.createValueStream(newTitle()), done: sp.createValueStream(false) });
-        newTitle("");
+        newTitle('');
     };
-    let removeTodo = (todo) => {
-        remove(todos, todo);
-    };
-
-    let app = {
-        view: function () {
+    const view = h('div', {}, [
+        h('input', { type: 'text', value: newTitle, oninput: sp.eventTarget('value', newTitle) }),
+        h('button', { onclick: addTodo }, '+'),
+        sp.nodeList('ul', {}, todos, (listNode: HTMLElement, todo: any, index: number) => {
             return h('div', {}, [
-                h('input', { type: 'text', value: newTitle, oninput: sp.eventTarget('value', newTitle) }),
-                h('a', { onclick: addTodo }, '+'),
-                sp.nodeList('ul', {}, todos, (listNode: HTMLElement, todo: any, index: number) => {
-                    return h('div', {}, [
-                        h('input', { type: 'checkbox', value: todo.done, onclick: sp.eventTarget('checked', todo.done) }),
-                        h('input', { type: 'text', value: todo.title, oninput: sp.eventTarget('value', todo.title) }),
-                        h('a', { onclick: () => removeTodo(todo) }, 'X'),
+                h('input', { type: 'checkbox', value: todo.done, onclick: sp.eventTarget('checked', todo.done) }),
+                h('input', { type: 'text', value: todo.title, oninput: sp.eventTarget('value', todo.title) }),
+                h('a', { onclick: () => remove(todos, todo) }, 'X'),
 
-                        // Create bindings on className and Creates binding on usage of title and done.
-                        h('span', {}, () => 'title: ' + todo.title() + ' done: ' + todo.done())
-                    ]);
-                })
+                // Create bindings on className and Creates binding on usage of title and done.
+                h('span', {}, () => 'title: ' + todo.title() + ' done: ' + todo.done())
             ]);
-        }
-    };
+        })
+    ]);
 
-    document.addEventListener('DOMContentLoaded', function () {
-        document.body.appendChild(app.view());
-    });
+    document.body.appendChild(view);
 }
 
 spuiTodo();
-
-/*
-
-                // TODO: what to do with collection/map array? probably need to provide an array model that wraps a normal array. or provide a way to
-                // kick in the update like redom does
-                h('ul', todos.map((todo, index) => {
-                    return h('div',
-                        // todo.done is a function and is checked upon setting arguments.
-                        h('input', { type: 'checkbox', value: todo.done, onclick: eventTarget('checked', todo.done) }),
-                        h('input', { type: 'text', value: todo.title, oninput: eventTarget('value', todo.title) }),
-                        h('a', { onclick: () => removeTodo(todo, index) }, 'X'),
-
-                        // Create bindings on className and Creates binding on usage of title and done.
-                        h('span', { className: () => style1() + " " + style2() }, () => 'title: ' + todo.title() + ' done: ' + todo.done())
-
-                    );
-                }))
-
-*/
