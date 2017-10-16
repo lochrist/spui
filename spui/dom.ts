@@ -56,6 +56,8 @@ export function setAttr(element: HTMLElement, attr: string, value: any) {
         setStyle(element, value);
     } else if (attr === 'class' || attr === 'className') {
         setClass(element, value);
+    } else if (attr === 'value') {
+        (element as any).value = value;
     } else if (attr) {
         if (value === false) {
             // This disables an attribute:

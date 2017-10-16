@@ -266,6 +266,7 @@ describe('dom generation', function () {
             const value = s.createValueStream('this is my value');
             const el = createElement('input', { value }, title) as HTMLInputElement;
             expect(el.value).toEqual('this is my value');
+            el.value = 'dummy-value';
 
             value('new value');
             expect(el.value).toEqual('new value');
