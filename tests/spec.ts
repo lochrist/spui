@@ -1,5 +1,5 @@
 import {isFunction} from '../spui/utils';
-import {h, nodeList} from '../spui/h';
+import {h, nodeList} from '../spui/dom';
 import * as s from '../spui/stream';
 import { observableArray, ObservableArray} from '../spui/observable-array';
 

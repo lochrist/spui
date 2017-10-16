@@ -1,3 +1,3 @@
-export * from './h';
+export * from './dom';
 export * from './stream';
 export * from './observable-array';

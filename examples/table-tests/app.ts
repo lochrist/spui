@@ -1,4 +1,3 @@
-// import { el, list } from '../spui/h';
 import {Store} from './store';
 
 function el(...args) {
