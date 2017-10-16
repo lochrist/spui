@@ -1,5 +1,6 @@
 import * as sp from '../spui/spui';
 import {h} from '../spui/spui';
+import { remove } from '../spui/utils';
 
 function domTests () {
     let models = ['ping', 'pong', 'bing', 'bong'];
@@ -181,7 +182,76 @@ function autoUpdateChildrenTest() {
 // autoUpdateChildrenTest();
 
 function observableArray() {
-    
+    let array = sp.observableArray();
+    array.addListener((...args) => {
+        console.log(args);
+    });
+
+    array.push('12', 33, 99, 'ping!');
+    array.push(122);
+    array.splice(1);
+    array.splice(1, 1);
+    array.splice(0, 0, 'www');
+    array.push(12);
+    array.sort();
+    array.pop();
+    array.reverse();
 }
 
-observableArray()
+// observableArray();
+
+function spuiTodo () {
+    let newTitle = sp.createValueStream("");
+    let todos = sp.observableArray();
+    let addTodo = () => {
+        todos.push({ title: sp.createValueStream(newTitle()), done: sp.createValueStream(false) });
+        newTitle("");
+    };
+    let removeTodo = (todo) => {
+        remove(todos, todo);
+    };
+
+    let app = {
+        view: function () {
+            return h('div', {}, [
+                h('input', { type: 'text', value: newTitle, oninput: sp.eventTarget('value', newTitle) }),
+                h('a', { onclick: addTodo }, '+'),
+                sp.nodeList('ul', {}, todos, (listNode: HTMLElement, todo: any, index: number) => {
+                    return h('div', {}, [
+                        h('input', { type: 'checkbox', value: todo.done, onclick: sp.eventTarget('checked', todo.done) }),
+                        h('input', { type: 'text', value: todo.title, oninput: sp.eventTarget('value', todo.title) }),
+                        h('a', { onclick: () => removeTodo(todo) }, 'X'),
+
+                        // Create bindings on className and Creates binding on usage of title and done.
+                        h('span', {}, () => 'title: ' + todo.title() + ' done: ' + todo.done())
+                    ]);
+                })
+            ]);
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.body.appendChild(app.view());
+    });
+}
+
+spuiTodo();
+
+/*
+
+                // TODO: what to do with collection/map array? probably need to provide an array model that wraps a normal array. or provide a way to
+                // kick in the update like redom does
+                h('ul', todos.map((todo, index) => {
+                    return h('div',
+                        // todo.done is a function and is checked upon setting arguments.
+                        h('input', { type: 'checkbox', value: todo.done, onclick: eventTarget('checked', todo.done) }),
+                        h('input', { type: 'text', value: todo.title, oninput: eventTarget('value', todo.title) }),
+                        h('a', { onclick: () => removeTodo(todo, index) }, 'X'),
+
+                        // Create bindings on className and Creates binding on usage of title and done.
+                        h('span', { className: () => style1() + " " + style2() }, () => 'title: ' + todo.title() + ' done: ' + todo.done())
+
+                    );
+                }))
+
+*/

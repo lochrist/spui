@@ -1,13 +1,11 @@
-import {isFunction, isString, isObject, expandValue} from './utils';
+import { isFunction, isString, isObject, expandValue, StringKeyMap} from './utils';
 import * as s from './stream';
+import {ObservableArray} from './observable-array';
 
 type AttrGenerator = (HTMLElement) => Object;
 type ChildGenerator = (HTMLElement) => HTMLElement | string;
 type Child = string | HTMLElement | ChildGenerator;
 type Children = Array<any> | Child;
-interface ElementAttrs {
-    [key: string]: any;
-}
 
 export function h(tagName: string, attrs: AttrGenerator | Object = null, children: Children = undefined) {
     const element = document.createElement(tagName);
@@ -21,11 +19,10 @@ export function h(tagName: string, attrs: AttrGenerator | Object = null, childre
     return element;
 }
 
-export function setAttrs(element: HTMLElement, attr: ElementAttrs) {
+export function setAttrs(element: HTMLElement, attr: StringKeyMap<any>) {
     // For each attr, setup a computation. When that computation is triggered, we patch this argument:
     for (const attrName in attr) {
         const attrValue = attr[attrName];
-
         // For event avoid listening for changes.
         if (attrName.startsWith('on')) {
             const eventName = attrName.slice(2);
@@ -46,10 +43,8 @@ export function setAttrs(element: HTMLElement, attr: ElementAttrs) {
                     setAttr(element, attrName, attrValue);
                 });
             }
-
             continue;
         }
-        
         // Handle static attributes:
         setAttr(element, attrName, attrValue);
     }
@@ -111,7 +106,6 @@ export function setChildren(element: HTMLElement, children: Children) {
 
 function appendChild(element: HTMLElement, child: Child) {
     // TODO: use documentFragment!
-    
     if (isFunction(child)) {
         let resolvedChild: HTMLElement | string;
         const computation = s.computeStream(() => {
@@ -135,36 +129,113 @@ function appendChild(element: HTMLElement, child: Child) {
     }
 }
 
+type NodeCreator = (listRootNode: HTMLElement, model: any, indeX: number) => HTMLElement;
 class NodeList {
-    models: any[];
-    nodeCreator: ChildGenerator;
+    models: ObservableArray<any>;
+    listRootNode: HTMLElement;
+    nodeCreator: NodeCreator;
     key: string;
+    modelToNode: Map<any, HTMLElement>;
     updateFunc: (HTMLElement) => void;
-    constructor(models: any[], nodeCreator: ChildGenerator, key?: string, updateFunc?: (HTMLElement) => void) {
+    constructor(listRootNode: HTMLElement, models: ObservableArray<any>, nodeCreator: NodeCreator, key?: string) {
+        this.listRootNode = listRootNode;
         this.models = models;
         this.nodeCreator = nodeCreator;
         this.key = key;
-        this.updateFunc = updateFunc;
+        this.modelToNode = new Map<any, HTMLElement>();
+        models.addListener(this.onModelChange.bind(this));
+
+        if (this.models.length) {
+            const nodes = this.createNodes(this.models, 0);
+            this.listRootNode.appendChild(nodes);
+        }
     }
 
-    update(models: any[]) {
+    onModelChange (op: string, args: any[]) {
+        switch(op) {
+            case 'pop':
+                this.listRootNode.removeChild(this.listRootNode.lastChild);
+                break;
+            case 'push': {
+                const nodes = this.createNodes(args, this.models.length - args.length);
+                this.listRootNode.appendChild(nodes);
+                break;
+            }
+            case 'reverse': {
+                const frag = new DocumentFragment();
+                while (this.listRootNode.lastChild) {
+                    frag.appendChild(this.listRootNode.removeChild(this.listRootNode.lastChild));
+                }
+                this.listRootNode.appendChild(frag);
+                break;
+            };
+            case 'splice':
+                const childNodes = this.listRootNode.childNodes;
+                const spliceStart = args[0] < 0 ? childNodes.length + args[0] : args[0];
+                const deleteCount = args.length > 1 ? args[1] : childNodes.length - spliceStart;
+                const deleteStop = spliceStart + deleteCount;
+                for (let i = spliceStart; i < deleteStop && childNodes[spliceStart]; i++) {
+                    this.listRootNode.removeChild(childNodes[spliceStart]);
+                }
 
+                if (args.length > 2) {
+                    const nodes = this.createNodes(args.slice(2), spliceStart);
+                    this.listRootNode.insertBefore(nodes, childNodes[spliceStart]);
+                }
+                break;
+            case 'shift':
+                this.listRootNode.removeChild(this.listRootNode.firstChild);
+                break;
+            case 'sort': {
+                const frag = new DocumentFragment();
+                for (const model of this.models) {
+                    const node = this.modelToNode.get(model);
+                    this.listRootNode.removeChild(node);
+                    frag.appendChild(node);
+                }
+                this.listRootNode.appendChild(frag);
+                break;
+            }
+            case 'unshift': {
+                const nodes = this.createNodes(args, 0);
+                this.listRootNode.insertBefore(nodes, this.listRootNode.firstChild);
+                break;
+            }
+            case 'changes': {
+                throw new Error('Pow needs to be implemented');
+                // break;
+            }
+        }
     }
 
-    updateModel(model: any) {
-        
+    createNodes(models: Array<any>, startIndex: number) : DocumentFragment | HTMLElement {
+        if (models.length > 1) {
+            const frag = new DocumentFragment();
+            for (const model of models) {
+                const childNode = this.createNode(model, startIndex++);
+                frag.appendChild(childNode);
+            }
+            return frag;
+        }
+
+        return this.createNode(models[0], startIndex);
     }
 
-    remove(key: number | string) {
-
-    }
-
-    add(model: any, key: number | string) {
-
+    createNode(model, index: number) : HTMLElement {
+        const childNode = this.nodeCreator(this.listRootNode, model, index);
+        this.modelToNode.set(model, childNode);
+        return childNode;
     }
 }
 
-export function list(tagName, attrs, models, nodeCreator: ChildGenerator, key?, updateFunc?) {
-    const parent = h(tagName, attrs);
+export function nodeList(tagName: string, attrs: AttrGenerator | Object = null, models: ObservableArray<any>, nodeCreator: NodeCreator, key?: string) {
+    const listRootNode = h(tagName, attrs);
+    (parent as any)._nodeList = new NodeList(listRootNode, models, nodeCreator, key);
+    return  listRootNode;
+}
 
+export function eventTarget(eventAttrName: string, stream: s.Stream) {
+    return function (event) {
+        return stream(event.target[eventAttrName]);
+    }
 }

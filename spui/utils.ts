@@ -1,3 +1,7 @@
+export interface StringKeyMap<T> {
+    [key: string]: T;
+}
+
 export function isFunction(obj): obj is Function { 
     return typeof obj === 'function'; 
 }

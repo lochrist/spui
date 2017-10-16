@@ -1,6 +1,7 @@
 import {isFunction} from '../spui/utils';
-import {h} from '../spui/h';
+import {h, nodeList} from '../spui/h';
 import * as s from '../spui/stream';
+import { observableArray, ObservableArray} from '../spui/observable-array';
 
 function double(value) { 
     return value * 2; 
@@ -350,12 +351,175 @@ describe('dom generation', function () {
         });
     });
 
-    describe('create elements with children-list', function () {
+    interface NodeListData {
+        nodeList: HTMLElement,
+        models: ObservableArray<any>
+    }
+    function validateDomList(nld: NodeListData) {
+        expect(nld.models.length).toEqual(nld.nodeList.childNodes.length);
+        for (let i = 0; i < nld.models.length; ++i) {
+            const model = nld.models[i];
+            const node = nld.nodeList.childNodes[i];
+            expect(model.domId).toEqual(node.attributes['id'].value);
+        }
+    }
 
+    function setupNodeList(title: string): NodeListData {
+        const models = observableArray();
+        const id = getId();
+        const attrs = {
+            id: id
+        };
+        let domList;
+        const el = h('div', attrs, [
+            title + ' : ' + id,
+            domList = nodeList('ul', attrs, models, (listNode, model, index) => {
+                const actualModelIndex = models.indexOf(model);
+                expect(actualModelIndex).toEqual(index);
+                return h('div', { id: model.domId, class: model.class }, model.text);
+            })
+        ])
+        expect(el instanceof HTMLElement).toEqual(true);
+        testDomRoot.appendChild(el);
+        expect(el as Element).toEqual(document.querySelector('#' + id));
+        const d = {
+            nodeList: domList,
+            models,
+        };
+        validateDomList(d);
+        return d
+    }
+
+    describe('node-list', function () {
+        function createModel() {
+            const domId = getId();
+            const model = {id: _id, domId, text: 'item: ' + domId};
+            return model;
+        }
+
+        itt('push single element', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel());
+            validateDomList(d);
+        });
+
+        itt('push multiple element', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel());
+            d.models.push(createModel());
+            d.models.push(createModel());
+            validateDomList(d);
+        });
+
+        itt('push multi', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel(), createModel(), createModel());
+            validateDomList(d);
+        });
+
+        itt('pop', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel(), createModel());
+            validateDomList(d);
+            d.models.pop();
+            validateDomList(d);
+        });
+
+        itt('reverse', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel(), createModel(), createModel());
+            validateDomList(d);
+            d.models.reverse();
+            validateDomList(d);
+        });
+
+        itt('splice delete til end', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel(), createModel(), createModel());
+            d.models.splice(1);
+            validateDomList(d);
+        });
+
+        itt('splice delete 2', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel(), createModel(), createModel(), createModel());
+            d.models.splice(1, 2);
+            validateDomList(d);
+        });
+
+        itt('splice delete and add', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel(), createModel(), createModel(), createModel());
+            d.models.splice(1, 2, createModel(), createModel());
+            validateDomList(d);
+        });
+
+        itt('splice add', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel(), createModel(), createModel(), createModel());
+            d.models.splice(1, 0, createModel(), createModel());
+            validateDomList(d);
+        });
+
+        itt('shift', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel(), createModel(), createModel());
+            d.models.shift();
+            validateDomList(d);
+        });
+
+        itt('sort', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel(), createModel(), createModel(), createModel());
+            d.models[0].order = 10;
+            d.models[1].order = 5;
+            d.models[2].order = 20;
+            d.models[3].order = 15;
+
+            d.models.sort((a, b) => a.order - b.order);
+            validateDomList(d);
+        });
+
+        itt('unshift single', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel(), createModel());
+            d.models.unshift(createModel());
+            validateDomList(d);
+        });
+
+        itt('unshift multiple', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel(), createModel());
+            d.models.unshift(createModel(), createModel());
+            validateDomList(d);
+        });
     });
 
-    describe('create elements with children-list (auto-binding)', function () {
+    describe('node-list (auto-binding)', function () {
+        function createModel() {
+            const domId = getId();
+            const textData = s.createValueStream('item: ' + domId);
+            const model = { id: _id, domId, text: () => textData(), class: s.createValueStream(domId), textData };
+            return model;
+        }
 
+        itt('modify class', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel());
+            validateDomList(d);
+
+            d.models[0].class('new-class');
+            expect(d.nodeList.children[0].className).toEqual('new-class');
+        });
+
+        itt('modify text', function (title) {
+            const d = setupNodeList(title);
+            d.models.push(createModel());
+            validateDomList(d);
+
+            d.models[0].textData('new-text');
+            expect(d.nodeList.children[0].textContent).toEqual('new-text');
+        });
     });
 
 });
