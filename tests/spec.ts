@@ -365,7 +365,7 @@ describe('dom generation', function () {
         }
     }
 
-    function setupNodeList(title: string): NodeListData {
+    function setupNodeList(title: string, noIndexCheck = false): NodeListData {
         const models = observableArray();
         const id = getId();
         const attrs = {
@@ -375,8 +375,10 @@ describe('dom generation', function () {
         const el = h('div', attrs, [
             title + ' : ' + id,
             domList = nodeList('ul', attrs, models, (listNode, model, index) => {
-                const actualModelIndex = models.indexOf(model);
-                expect(actualModelIndex).toEqual(index);
+                if (!noIndexCheck) {
+                    const actualModelIndex = models.indexOf(model);
+                    expect(actualModelIndex).toEqual(index);
+                }
                 return h('div', { id: model.domId, class: model.class }, model.text);
             })
         ])
@@ -495,13 +497,28 @@ describe('dom generation', function () {
             validateDomList(d);
         });
 
-        itt('changes', function (title) {
-            const d = setupNodeList(title);
+        itt('changes: push + unshift ', function (title) {
+            // No index check on batch operations
+            const d = setupNodeList(title, true);
             d.models.applyChanges(() => {
                 d.models.push(createModel(), createModel());
                 d.models.unshift(createModel(), createModel());
             });
             
+            validateDomList(d);
+        });
+
+        itt('changes: swap', function (title) {
+            // No index check on batch operations
+            const d = setupNodeList(title, true);
+            d.models.applyChanges(() => {
+                d.models.push(createModel(), createModel(), createModel(), createModel());
+                const a = d.models[1];
+                const b = d.models[2];
+                d.models.splice(1, 1, b);
+                d.models.splice(2, 1, a);
+            });
+
             validateDomList(d);
         });
     });
