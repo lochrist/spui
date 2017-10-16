@@ -1,12 +1,6 @@
 import {Store} from './store';
-
-function el(...args) {
-    throw new Error('pow');
-}
-
-function list(...args) {
-    throw new Error('pow');
-}
+import {h, nodeList} from '../../spui/dom';
+import * as s from '../../spui/stream';
 
 const performance = window.performance;
 const setTimeout = window.setTimeout;
@@ -34,60 +28,75 @@ const stopMeasure = () => {
 export class App {
     store: Store;
     table: any;
-    el: any;
+    el: HTMLElement;
     constructor({ store }) {
         this.store = store;
         this.buildView();
     }
 
     buildView () {
-        this.el = el('.container',
-            el('.jumbotron',
-                el('.row',
-                    el('.col-md-6',
-                        el('h1', 'RE:DOM')
+        this.el = h('div', {class: 'container'}, [
+            h('div', {class: 'jumbotron'},
+                h('div', {class: 'row'}, [
+                    h('div', {class: 'col-md-6'},
+                        h('h1', {}, 'SPUI')
                     ),
-                    el('.col-md-6',
-                        el('.row',
-                            el('.col-sm-6.smallpad',
-                                el('button#run.btn.btn-primary.btn-block', { type: 'button', onclick: e => this.run() },
+                    h('div', {class: 'col-md-6'},
+                        h('div', {class: 'row'}, [
+                            h('div', {class: 'col-sm-6 smallpad'},
+                                h('button', { id: 'run', class: 'btn btn-primary btn-block', type: 'button', onclick: e => this.run()},
                                     'Create 1,000 rows'
                                 )
                             ),
-                            el('.col-sm-6.smallpad',
-                                el('button#runlots.btn.btn-primary.btn-block', { type: 'button', onclick: e => this.runLots() },
+                            h('div', {class: 'col-sm-6 smallpad'},
+                                h('button', {id: 'runlots', class: 'btn btn-primary btn-block', type: 'button', onclick: e => this.runLots() },
                                     'Create 10,000 rows'
                                 )
                             ),
-                            el('.col-sm-6.smallpad',
-                                el('button#add.btn.btn-primary.btn-block', { type: 'button', onclick: e => this.add() },
+                            h('div', { class: 'col-sm-6 smallpad' },
+                                h('button', { id: 'add', class: 'btn btn-primary btn-block', type: 'button', onclick: e => this.add() },
                                     'Append 1,000 rows'
                                 )
                             ),
-                            el('.col-sm-6.smallpad',
-                                el('button#update.btn.btn-primary.btn-block', { type: 'button', onclick: e => this.update() },
+                            h('div', { class: 'col-sm-6 smallpad' },
+                                h('button', { id: 'update', class: 'btn btn-primary btn-block', type: 'button', onclick: e => this.update() },
                                     'Update every 10th row'
                                 )
                             ),
-                            el('.col-sm-6.smallpad',
-                                el('button#clear.btn.btn-primary.btn-block', { type: 'button', onclick: e => this.clear() },
+                            h('div', { class: 'col-sm-6 smallpad' },
+                                h('button', { id: 'clear', class: 'btn btn-primary btn-block', type: 'button', onclick: e => this.clear() },
                                     'Clear'
                                 )
                             ),
-                            el('.col-sm-6.smallpad',
-                                el('button#swaprows.btn.btn-primary.btn-block', { type: 'button', onclick: e => this.swapRows() },
-                                    'Swap Rows'
+                            h('div', { class: 'col-sm-6 smallpad' },
+                                h('button', { id: 'swaprows', class: 'btn btn-primary btn-block', type: 'button', onclick: e => this.swapRows() },
+                                    'Swap'
                                 )
                             )
-                        )
+                        ])
                     )
-                )
+                ])
             ),
-            el('table.table.table-hover.table-striped.test-data',
-                this.table = list('tbody', Tr, null, { app: this, store: this.store })
+
+            // TODO handle selected
+            h('table', {class: 'table table-hover table-striped test-data'},
+                this.table = nodeList('tbody', {}, this.store.data, (element) => {
+                    return h('tr', {}, [
+                        h('td', {class: 'col-md-1'}),
+                        h('td', {class: 'col-md-4'},
+                            h('a', { onclick: e => this.select(element.id) })
+                        ),
+                        h('td', {class: 'col-md-1'},
+                            h('a', { onclick: e => this.remove(element.id) },
+                                h('span.glyphicon.glyphicon-remove', { 'aria-hidden': true })
+                            )
+                        ),
+                        h('td', {class: 'col-md-6'})
+                    ]);
+                })
             ),
-            el('span.preloadicon.glyphicon.glyphicon-remove', { 'aria-hidden': true })
-        );
+            h('span', {class: 'preloadicon glyphicon glyphicon-remove', 'aria-hidden': true })
+        ]);
     }
 
     add() {
@@ -140,48 +149,5 @@ export class App {
     }
     render() {
         this.table.update(this.store.data);
-    }
-}
-
-class Tr {
-    app: App;
-    store: Store;
-    el: any;
-    id: any;
-    label: any;
-    remove: any;
-    data: any;
-    constructor({ app, store }) {
-        this.app = app;
-        this.store = store;
-        this.el = el('tr',
-            this.id = el('td.col-md-1'),
-            el('td.col-md-4',
-                this.label = el('a', { onclick: e => app.select(this.data.id) })
-            ),
-            el('td.col-md-1',
-                this.remove = el('a', { onclick: e => app.remove(this.data.id) },
-                    el('span.glyphicon.glyphicon-remove', { 'aria-hidden': true })
-                )
-            ),
-            el('td.col-md-6')
-        );
-    }
-    update(data) {
-        const { id, label } = data;
-        const { selected } = this.store;
-
-        if (data !== this.data) {
-            this.id.textContent = id;
-            this.label.textContent = label;
-        }
-
-        if (id === selected) {
-            this.el.classList.add('danger');
-        } else {
-            this.el.classList.remove('danger');
-        }
-
-        this.data = data;
     }
 }

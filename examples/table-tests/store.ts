@@ -44,7 +44,7 @@ export class Store {
     }
     run() {
         this.data.push(this.buildData());
-        this.selected = undefined;
+        this.selected(undefined);
     }
     add() {
         this.data.push(this.buildData(1000));
@@ -53,19 +53,20 @@ export class Store {
         this.updateData();
     }
     select(id) {
-        this.selected = id;
+        this.selected(id);
     }
     runLots() {
         this.data.push(this.buildData(10000));
-        this.selected = undefined;
+        this.selected(undefined);
     }
     clear() {
         this.data.splice(0);
-        this.selected = undefined;
+        this.selected(undefined);
     }
     swapRows() {
         if (this.data.length > 10) {
             this.data.applyChanges(() => {
+                 // TODO can it be better?
                 const a = this.data[4];
                 const b = this.data[9];
                 this.data.splice(4, 1, b);
