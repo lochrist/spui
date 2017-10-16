@@ -130,7 +130,7 @@ function appendChild(element: HTMLElement, child: Child) {
 }
 
 type NodeCreator = (listRootNode: HTMLElement, model: any, indeX: number) => HTMLElement;
-class NodeList {
+class SyncNodeList {
     models: ObservableArray<any>;
     listRootNode: HTMLElement;
     nodeCreator: NodeCreator;
@@ -230,7 +230,7 @@ class NodeList {
 
 export function nodeList(tagName: string, attrs: AttrGenerator | Object = null, models: ObservableArray<any>, nodeCreator: NodeCreator, key?: string) {
     const listRootNode = h(tagName, attrs);
-    (parent as any)._nodeList = new NodeList(listRootNode, models, nodeCreator, key);
+    (parent as any)._nodeList = new SyncNodeList(listRootNode, models, nodeCreator, key);
     return  listRootNode;
 }
 
