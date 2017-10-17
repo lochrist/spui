@@ -1,5 +1,5 @@
 import {Store} from './store';
-import {h, nodeList} from '../../spui/dom';
+import {h, nodeList, getNodeList} from '../../spui/dom';
 import * as s from '../../spui/stream';
 
 const performance = window.performance;
@@ -27,15 +27,17 @@ const stopMeasure = () => {
 
 export class App {
     store: Store;
-    table: any;
-    el: HTMLElement;
+    tableEl: HTMLElement;
+    rootViewEl: HTMLElement;
+    selectedElement: HTMLElement;
     constructor({ store }) {
         this.store = store;
         this.buildView();
+        this.selectedElement = null;
     }
 
     buildView () {
-        this.el = h('div', {class: 'container'}, [
+        this.rootViewEl = h('div', {class: 'container'}, [
             h('div', {class: 'jumbotron'},
                 h('div', {class: 'row'}, [
                     h('div', {class: 'col-md-6'},
@@ -80,7 +82,7 @@ export class App {
 
             // TODO handle selected
             h('table', {class: 'table table-hover table-striped test-data'},
-                this.table = nodeList('tbody', {}, this.store.data, (tableElement, data) => {
+                this.tableEl = nodeList('tbody', {}, this.store.data, (tableElement, data) => {
                     return h('tr', {}, [
                         h('td', {class: 'col-md-1'}, data.id),
                         h('td', {class: 'col-md-4'},
@@ -97,6 +99,20 @@ export class App {
             ),
             h('span', {class: 'preloadicon glyphicon glyphicon-remove', 'aria-hidden': true })
         ]);
+
+        s.map(this.store.selected, selectedId => {
+            
+            if (this.selectedElement) {
+                this.selectedElement.className = '';
+            }
+
+            if (selectedId !== undefined) {
+                const nodeList = getNodeList(this.tableEl);
+                const selectedModel = this.store.data.find(model => model.id === selectedId);
+                this.selectedElement = nodeList.modelToNode.get(selectedModel);
+                this.selectedElement.className = 'danger';
+            }
+        });
     }
 
     add() {

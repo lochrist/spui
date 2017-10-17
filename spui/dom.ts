@@ -132,7 +132,7 @@ function appendChild(element: HTMLElement, child: Child) {
 }
 
 type NodeCreator = (listRootNode: HTMLElement, model: any, indeX: number) => HTMLElement;
-class SyncNodeList {
+export class SyncNodeList {
     models: ObservableArray<any>;
     listRootNode: HTMLElement;
     nodeCreator: NodeCreator;
@@ -237,6 +237,10 @@ export function nodeList(tagName: string, attrs: AttrGenerator | Object = null, 
     const listRootNode = h(tagName, attrs);
     (parent as any)._nodeList = new SyncNodeList(listRootNode, models, nodeCreator, key);
     return  listRootNode;
+}
+
+export function getNodeList(nodeListElement: HTMLElement) : SyncNodeList {
+    return (parent as any)._nodeList;
 }
 
 export function eventTarget(eventAttrName: string, stream: s.Stream) {

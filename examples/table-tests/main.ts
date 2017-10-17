@@ -6,4 +6,4 @@ import { Store } from './store';
 const store = new Store();
 const app = new App({ store });
 
-document.body.appendChild(app.el);
+document.body.appendChild(app.rootViewEl);
