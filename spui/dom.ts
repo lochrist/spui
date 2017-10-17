@@ -7,7 +7,7 @@ type ChildGenerator = (HTMLElement) => HTMLElement | string;
 type Child = string | HTMLElement | ChildGenerator;
 type Children = Array<any> | Child;
 
-export function h(tagName: string, attrs: AttrGenerator | Object = null, children: Children = undefined) {
+export function h(tagName: string, attrs?: AttrGenerator | Object, children?: Children) {
     const element = document.createElement(tagName);
     if (attrs) {
         setAttrs(element, attrs);
@@ -52,28 +52,26 @@ export function setAttrs(element: HTMLElement, attr: StringKeyMap<any>) {
 
 export function setAttr(element: HTMLElement, attr: string, value: any) {
     value = expandValue(value);
-    if (attr === 'style') {
-        setStyle(element, value);
-    } else if (attr === 'class' || attr === 'className') {
+    if (attr === 'class' || attr === 'className') {
         setClass(element, value);
+    } else if (attr === 'style') {
+        setStyle(element, value);
     } else if (attr === 'value') {
         // value is handled differently than attributes. the value attributes only indicates the "initial" value. 
         // You need to use "value" property to actually modify the node.
         (element as any).value = value;
-    } else if (attr) {
-        if (value === false) {
+    } else if (value === false) {
             // This disables an attribute:
-            element.removeAttribute(attr);
-        } else {
+        element.removeAttribute(attr);
+    } else {
             // If value is a boolean, set it to "" to only enable it in DOM.
-            element.setAttribute(attr, value === true ? "" : value);
-        }
+        element.setAttribute(attr, value === true ? "" : value);
     }
 }
 
 export function setClass(element: HTMLElement, className: string | Object) {
     if (isString(className)) {
-        element.setAttribute('class', className);
+        element.className = className;
     } else {
         let newClass = '';
         for (const key in className) {
@@ -83,7 +81,7 @@ export function setClass(element: HTMLElement, className: string | Object) {
                 newClass += (newClass == '' ? '' : ' ' ) + key;
             }
         }
-        element.setAttribute('class', newClass);
+        element.className = newClass;
     }
 }
 
