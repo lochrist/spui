@@ -52,20 +52,26 @@ export function setAttrs(element: HTMLElement, attr: StringKeyMap<any>) {
 
 export function setAttr(element: HTMLElement, attr: string, value: any) {
     value = expandValue(value);
-    if (attr === 'class' || attr === 'className') {
-        setClass(element, value);
-    } else if (attr === 'style') {
-        setStyle(element, value);
-    } else if (attr === 'value') {
-        // value is handled differently than attributes. the value attributes only indicates the "initial" value. 
-        // You need to use "value" property to actually modify the node.
-        (element as any).value = value;
-    } else if (value === false) {
-            // This disables an attribute:
-        element.removeAttribute(attr);
-    } else {
-            // If value is a boolean, set it to "" to only enable it in DOM.
-        element.setAttribute(attr, value === true ? "" : value);
+    switch(attr) {
+        case 'class':
+        case 'className':
+            setClass(element, value);
+        break
+        case 'style':
+            setStyle(element, value);
+        break;
+        case 'value':
+            // value is handled differently than attributes. the value attributes only indicates the "initial" value. 
+            // You need to use "value" property to actually modify the node.
+            (element as any).value = value;
+        break;
+        default: 
+            if (value === false) {
+                element.removeAttribute(attr);
+            } else {
+                // If value is a boolean, set it to "" to only enable it in DOM.
+                element.setAttribute(attr, value === true ? "" : value);
+            }
     }
 }
 
