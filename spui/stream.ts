@@ -19,10 +19,10 @@ let runningComputations: Array<Computation> = [];
 
 function setValue(stream, value) {
     stream._backingValue = stream._transform ? stream._transform(value) : value;
-    if (stream._listeners && stream._listeners.length) {
+    if (stream._listeners.length) {
         const dependencies = stream._listeners.slice();
-        for (const dep of dependencies) {
-            dep(stream._backingValue);
+        for (let i = 0; i < dependencies.length; ++i) {
+            dependencies[i](stream._backingValue);
         }
     }
 }
@@ -43,19 +43,18 @@ export function createValueStream(initialValue?, transform?: Transform) : Stream
         return stream._backingValue;
     } as Stream;
 
+    stream._listeners = [];
     if (transform) {
         stream._transform = transform;
     }
     if (initialValue !== undefined) {
         setValue(stream, initialValue);
     }
+
     return stream;
 }
 
 export function addListener(stream: Stream, listener: Transform) : Functor {
-    if (!stream._listeners) {
-        stream._listeners = [];
-    }
     if (stream._listeners.indexOf(listener) === -1) {
         stream._listeners.push(listener);
     }
@@ -63,9 +62,7 @@ export function addListener(stream: Stream, listener: Transform) : Functor {
 }
 
 export function removeListener(valueStream: Stream, listener: Transform) : Stream {
-    if (valueStream._listeners && valueStream._listeners.length) {
-        remove(valueStream._listeners, listener);
-    }
+    remove(valueStream._listeners, listener);
     return valueStream;
 }
 
@@ -110,7 +107,6 @@ export function computeStream(functor: Functor, transform?: Transform) : Computa
             error = e;
         }
         runningComputations.pop();
-
         if (error) throw error;
         return result;
     }

@@ -34,8 +34,8 @@ export class ObservableArray<T> extends Array<T> {
     }
 
     emit (op: string, args: any[]) {
-        for (const l of this.listeners) {
-            l(op, args);
+        for (let i = 0; i < this.listeners.length; ++i) {
+            this.listeners[i](op, args);
         }
     }
 }

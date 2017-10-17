@@ -20,7 +20,6 @@ describe('stream', function () {
             expect(stream()).toEqual(value);
 
             expect(stream._backingValue).toEqual(value);
-            expect(stream._listeners).toBeUndefined();
             expect(stream._transform).toBeUndefined();
         });
 

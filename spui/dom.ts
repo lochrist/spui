@@ -100,8 +100,8 @@ export function setStyle(element: HTMLElement, style: Object | string, value?) {
 
 export function setChildren(element: HTMLElement, children: Children) {
     if (Array.isArray(children)) {
-        for (const child of children) {
-            appendChild(element, child);
+        for (let i = 0; i < children.length; ++i) {
+            appendChild(element, children[i]);
         }
     } else {
         appendChild(element, children);
@@ -192,8 +192,8 @@ export class SyncNodeList {
                 break;
             case 'sort': {
                 const frag = new DocumentFragment();
-                for (const model of this.models) {
-                    const node = this.modelToNode.get(model);
+                for (let i = 0; i < this.models.length; ++i) {
+                    const node = this.modelToNode.get(this.models[i]);
                     this.listRootNode.removeChild(node);
                     frag.appendChild(node);
                 }
@@ -207,8 +207,8 @@ export class SyncNodeList {
             }
             case 'changes': {
                 const changes = args;
-                for (const change of changes) {
-                    this.onModelChange(change[0], change[1]);
+                for (let i = 0; i < changes.length; ++i) {
+                    this.onModelChange(changes[i][0], changes[i][1]);
                 }
                 break;
             }
@@ -218,8 +218,8 @@ export class SyncNodeList {
     createNodes(models: Array<any>, startIndex: number) : DocumentFragment | HTMLElement {
         if (models.length > 1) {
             const frag = new DocumentFragment();
-            for (const model of models) {
-                const childNode = this.createNode(model, startIndex++);
+            for (let i = 0; i < models.length; ++i) {
+                const childNode = this.createNode(models[i], startIndex++);
                 frag.appendChild(childNode);
             }
             return frag;

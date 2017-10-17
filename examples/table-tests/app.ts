@@ -141,7 +141,9 @@ export class App {
     }
     runLots() {
         startMeasure('runLots');
+        console.profile('runLots');
         this.store.runLots();
+        console.profileEnd();
         stopMeasure();
     }
     clear() {
