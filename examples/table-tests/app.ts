@@ -101,7 +101,6 @@ export class App {
         ]);
 
         s.map(this.store.selected, selectedId => {
-            
             if (this.selectedElement) {
                 this.selectedElement.className = '';
             }

@@ -57,6 +57,8 @@ export function setAttr(element: HTMLElement, attr: string, value: any) {
     } else if (attr === 'class' || attr === 'className') {
         setClass(element, value);
     } else if (attr === 'value') {
+        // value is handled differently than attributes. the value attributes only indicates the "initial" value. 
+        // You need to use "value" property to actually modify the node.
         (element as any).value = value;
     } else if (attr) {
         if (value === false) {
@@ -107,7 +109,7 @@ export function setChildren(element: HTMLElement, children: Children) {
 }
 
 function appendChild(element: HTMLElement, child: Child) {
-    // TODO: use documentFragment!
+    // TODO Use DocumentFragments
     if (isFunction(child)) {
         let resolvedChild: HTMLElement | string;
         const computation = s.computeStream(() => {
@@ -118,6 +120,7 @@ function appendChild(element: HTMLElement, child: Child) {
         element.appendChild(childNode);
 
         if (computation.dependencies.length) {
+            // Auto update in case children is a stream
             s.addTransform(computation.computedStream, () => {
                 const oldChildNode = childNode;
                 childNode = isString(resolvedChild) ? document.createTextNode(resolvedChild) : resolvedChild;
