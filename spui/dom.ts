@@ -109,7 +109,6 @@ export function setChildren(element: HTMLElement, children: Children) {
 }
 
 function appendChild(element: HTMLElement, child: Child) {
-    // TODO Use DocumentFragments
     if (isFunction(child)) {
         let resolvedChild: HTMLElement | string;
         const computation = s.computeStream(() => {
