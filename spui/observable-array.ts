@@ -40,10 +40,6 @@ export class ObservableArray<T> extends Array<T> {
     }
 }
 
-export function observableArray(): ObservableArray<any> {
-    return new ObservableArray();
-}
-
 const mutables = 'pop push reverse splice shift sort unshift'.split(' ');
 for (const method of mutables) {
     const originalMethod = Array.prototype[method];

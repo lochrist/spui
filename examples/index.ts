@@ -1,6 +1,6 @@
-import * as sp from '../spui/spui';
-import {h} from '../spui/spui';
-import { remove } from '../spui/utils';
+import * as sp from '../spui/index';
+import * as utils from '../spui/utils';
+const h = sp.h;
 
 function domTests () {
     let models = ['ping', 'pong', 'bing', 'bong'];
@@ -182,7 +182,7 @@ function autoUpdateChildrenTest() {
 // autoUpdateChildrenTest();
 
 function observableArray() {
-    let array = sp.observableArray();
+    let array = new sp.ObservableArray();
     array.addListener((...args) => {
         console.log(args);
     });
@@ -202,7 +202,7 @@ function observableArray() {
 
 function spuiTodo () {
     const newTitle = sp.createValueStream('');
-    const todos = sp.observableArray();
+    const todos = new sp.ObservableArray();
     const addTodo = () => {
         todos.push({ title: sp.createValueStream(newTitle()), done: sp.createValueStream(false) });
         newTitle('');
@@ -214,7 +214,7 @@ function spuiTodo () {
             return h('div', {}, [
                 h('input', { type: 'checkbox', value: todo.done, onclick: sp.eventTarget('checked', todo.done) }),
                 h('input', { type: 'text', value: todo.title, oninput: sp.eventTarget('value', todo.title) }),
-                h('a', { onclick: () => remove(todos, todo) }, 'X'),
+                h('a', { onclick: () => utils.remove(todos, todo) }, 'X'),
 
                 // Create bindings on className and Creates binding on usage of title and done.
                 h('span', {}, () => 'title: ' + todo.title() + ' done: ' + todo.done())

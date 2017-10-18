@@ -1,7 +1,7 @@
-import {isFunction} from '../spui/utils';
-import {h, nodeList} from '../spui/dom';
-import * as s from '../spui/stream';
-import { observableArray, ObservableArray} from '../spui/observable-array';
+import * as sp from '../spui/index';
+import * as utils from '../spui/utils';
+
+const h = sp.h;
 
 function double(value) { 
     return value * 2; 
@@ -10,13 +10,13 @@ function double(value) {
 describe('stream', function () {
     describe('value stream', function () {
         it('create no param', function () {
-            let stream = s.createValueStream();
+            let stream = sp.createValueStream();
             expect(stream()).toBeUndefined();
         });
 
         it('create with value', function () {
             const value = 99;
-            const stream = s.createValueStream(value);
+            const stream = sp.createValueStream(value);
             expect(stream()).toEqual(value);
 
             expect(stream._backingValue).toEqual(value);
@@ -25,13 +25,13 @@ describe('stream', function () {
 
         it('create with transform', function () {
             const value = 12;
-            const stream = s.createValueStream(value, double);
+            const stream = sp.createValueStream(value, double);
             expect(stream()).toEqual(value * 2);
             expect(stream._transform).toEqual(double);
         });
 
         it('setter', function () {
-            const stream = s.createValueStream(12);
+            const stream = sp.createValueStream(12);
 
             const value = 99;
             stream(value);
@@ -39,13 +39,13 @@ describe('stream', function () {
         });
 
         it ('add/remove listener', function () {
-            const v = s.createValueStream(12);
+            const v = sp.createValueStream(12);
 
             let result;
             function assignResult(value) { result = value; }
 
-            const off = s.addListener(v, assignResult);
-            expect(isFunction(off)).toEqual(true);
+            const off = sp.addListener(v, assignResult);
+            expect(utils.isFunction(off)).toEqual(true);
 
             const value = 99;
             v(99);
@@ -60,8 +60,8 @@ describe('stream', function () {
 
         it('map', function () {
             const value = 12;
-            const v = s.createValueStream(value);
-            const computed = s.map(v, double);
+            const v = sp.createValueStream(value);
+            const computed = sp.map(v, double);
             expect(computed !== v).toEqual(true);
             expect(v._listeners).toContain(computed);
             expect(computed()).toEqual(value * 2);
@@ -71,10 +71,10 @@ describe('stream', function () {
         it ('computation', function () {
             const value1 = 12;
             const value2 = 99;
-            const vs1 = s.createValueStream(value1);
-            const vs2 = s.createValueStream(value2);
+            const vs1 = sp.createValueStream(value1);
+            const vs2 = sp.createValueStream(value2);
 
-            const computation = s.computeStream(() => {
+            const computation = sp.computeStream(() => {
                 return vs1() + vs2();
             });
 
@@ -201,7 +201,7 @@ describe('dom generation', function () {
 
     describe('create elements (attributes auto-binding)', function () {
         itt('with style', function (title) {
-            const style = s.createValueStream('color: blue;');
+            const style = sp.createValueStream('color: blue;');
             const el = createElement('div', { style: style }, title);
             expect(el.style['color']).toEqual('blue');
 
@@ -210,8 +210,8 @@ describe('dom generation', function () {
         });
 
         itt('with style object', function (title) {
-            const color = s.createValueStream('blue');
-            const fontStyle = s.createValueStream('italic');
+            const color = sp.createValueStream('blue');
+            const fontStyle = sp.createValueStream('italic');
             const el = createElement('div', { style: { color, 'font-style': fontStyle } }, title);
             expect(el.style['color']).toEqual('blue');
             expect(el.style['font-style']).toEqual('italic');
@@ -224,7 +224,7 @@ describe('dom generation', function () {
         });
 
         itt('with class', function (title) {
-            const c = s.createValueStream('blue-text');
+            const c = sp.createValueStream('blue-text');
             const el = createElement('div', { class: () => 'pow ' + c() }, title);
             expect(el.className).toEqual('pow blue-text');
 
@@ -233,8 +233,8 @@ describe('dom generation', function () {
         });
 
         itt('with class object', function (title) {
-            const blueTextEnabled = s.createValueStream(true);
-            const pingEnabled = s.createValueStream(false);
+            const blueTextEnabled = sp.createValueStream(true);
+            const pingEnabled = sp.createValueStream(false);
             const c = { 'blue-text': blueTextEnabled, ping: pingEnabled };
             const el = createElement('div', { class: c }, title);
             expect(el.className).toEqual('blue-text');
@@ -247,8 +247,8 @@ describe('dom generation', function () {
         });
 
         itt('with boolean attributes', function (title) {
-            const isDisabled = s.createValueStream(true);
-            const isReadonly = s.createValueStream(false);
+            const isDisabled = sp.createValueStream(true);
+            const isReadonly = sp.createValueStream(false);
 
             const el = createElement('input', { disabled: isDisabled, readonly: isReadonly }, title);
             expect(el.attributes['disabled']).toBeDefined();
@@ -262,7 +262,7 @@ describe('dom generation', function () {
         });
 
         itt('with value', function (title) {
-            const value = s.createValueStream('this is my value');
+            const value = sp.createValueStream('this is my value');
             const el = createElement('input', { value }, title) as HTMLInputElement;
             expect(el.value).toEqual('this is my value');
             el.value = 'dummy-value';
@@ -300,7 +300,7 @@ describe('dom generation', function () {
     describe('create elements with children (auto-binding)', function () {
         itt('single child', function (title) {
             const values = ['value1', 'value2', 'value3']
-            const singleChildValue = s.createValueStream(values[0]);
+            const singleChildValue = sp.createValueStream(values[0]);
             const el = createElement('div', {}, parentElement => singleChildValue());
             expect(el.textContent).toEqual(values[0]);
 
@@ -314,9 +314,9 @@ describe('dom generation', function () {
         itt('3 text children', function (title) {
             const values = ['value1', 'value2', 'value3']
             const values2 = ['value11', 'value22', 'value32']
-            const nodeData1 = s.createValueStream(values[0]);
-            const nodeData2 = s.createValueStream(values[1]);
-            const nodeData3 = s.createValueStream(values[2]);
+            const nodeData1 = sp.createValueStream(values[0]);
+            const nodeData2 = sp.createValueStream(values[1]);
+            const nodeData3 = sp.createValueStream(values[2]);
             const el = createElement('div', {}, [
                 parentElement => nodeData1(),
                 parentElement => nodeData2(),
@@ -333,8 +333,8 @@ describe('dom generation', function () {
         });
 
         itt('children attr', function (title) {
-            const isDisabled = s.createValueStream(true);
-            const text = s.createValueStream('before');
+            const isDisabled = sp.createValueStream(true);
+            const text = sp.createValueStream('before');
             let el;
             const root = createElement('div', {}, 
                 el = h('div', {disabled: isDisabled}, parent => text())
@@ -353,7 +353,7 @@ describe('dom generation', function () {
 
     interface NodeListData {
         nodeList: HTMLElement,
-        models: ObservableArray<any>
+        models: sp.ObservableArray<any>
     }
     function validateDomList(nld: NodeListData) {
         expect(nld.models.length).toEqual(nld.nodeList.childNodes.length);
@@ -365,7 +365,7 @@ describe('dom generation', function () {
     }
 
     function setupNodeList(title: string, noIndexCheck = false): NodeListData {
-        const models = observableArray();
+        const models = new sp.ObservableArray<any>();
         const id = getId();
         const attrs = {
             id: id
@@ -373,7 +373,7 @@ describe('dom generation', function () {
         let domList;
         const el = h('div', attrs, [
             title + ' : ' + id,
-            domList = nodeList('ul', attrs, models, (listNode, model, index) => {
+            domList = sp.nodeList('ul', attrs, models, (listNode, model, index) => {
                 if (!noIndexCheck) {
                     const actualModelIndex = models.indexOf(model);
                     expect(actualModelIndex).toEqual(index);
@@ -525,8 +525,8 @@ describe('dom generation', function () {
     describe('node-list (auto-binding)', function () {
         function createModel() {
             const domId = getId();
-            const textData = s.createValueStream('item: ' + domId);
-            const model = { id: _id, domId, text: () => textData(), class: s.createValueStream(domId), textData };
+            const textData = sp.createValueStream('item: ' + domId);
+            const model = { id: _id, domId, text: () => textData(), class: sp.createValueStream(domId), textData };
             return model;
         }
 

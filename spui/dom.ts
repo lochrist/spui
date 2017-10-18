@@ -19,7 +19,7 @@ export function h(tagName: string, attrs?: AttrGenerator | Object, children?: Ch
     return element;
 }
 
-export function setAttrs(element: HTMLElement, attr: StringKeyMap<any>) {
+function setAttrs(element: HTMLElement, attr: StringKeyMap<any>) {
     // For each attr, setup a computation. When that computation is triggered, we patch this argument:
     for (const attrName in attr) {
         const attrValue = attr[attrName];
@@ -50,7 +50,7 @@ export function setAttrs(element: HTMLElement, attr: StringKeyMap<any>) {
     }
 }
 
-export function setAttr(element: HTMLElement, attr: string, value: any) {
+function setAttr(element: HTMLElement, attr: string, value: any) {
     value = expandValue(value);
     switch(attr) {
         case 'class':
@@ -75,7 +75,7 @@ export function setAttr(element: HTMLElement, attr: string, value: any) {
     }
 }
 
-export function setClass(element: HTMLElement, className: string | Object) {
+function setClass(element: HTMLElement, className: string | Object) {
     if (isString(className)) {
         element.className = className;
     } else {
@@ -91,7 +91,7 @@ export function setClass(element: HTMLElement, className: string | Object) {
     }
 }
 
-export function setStyle(element: HTMLElement, style: Object | string, value?) {
+function setStyle(element: HTMLElement, style: Object | string, value?) {
     if (isString(style)) {
         element.setAttribute('style', style);
     } else {
@@ -102,7 +102,7 @@ export function setStyle(element: HTMLElement, style: Object | string, value?) {
     }
 }
 
-export function setChildren(element: HTMLElement, children: Children) {
+function setChildren(element: HTMLElement, children: Children) {
     if (Array.isArray(children)) {
         for (let i = 0; i < children.length; ++i) {
             appendChild(element, children[i]);

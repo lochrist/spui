@@ -1,5 +1,4 @@
-import {observableArray, ObservableArray} from '../../spui/observable-array';
-import * as s from '../../spui/stream';
+import * as sp from '../../spui/index';
 
 function random(max) {
     return Math.round(Math.random() * 1000) % max;
@@ -10,12 +9,12 @@ const colours = ['red', 'yellow', 'blue', 'green', 'pink', 'brown', 'purple', 'b
 const nouns = ['table', 'chair', 'house', 'bbq', 'desk', 'car', 'pony', 'cookie', 'sandwich', 'burger', 'pizza', 'mouse', 'keyboard'];
 export class Store {
     backup: any[];
-    data: ObservableArray<any>;
-    selected: s.Stream;
+    data: sp.ObservableArray<any>;
+    selected: sp.Stream;
     id: number;
     constructor() {
-        this.data = observableArray();
-        this.selected = s.createValueStream();
+        this.data = new sp.ObservableArray<any>();
+        this.selected = sp.createValueStream();
         this.id = 1;
     }
     buildData(count = 1000) {
@@ -24,7 +23,7 @@ export class Store {
             const label = adjectives[random(adjectives.length)] + ' ' + colours[random(colours.length)] + ' ' + nouns[random(nouns.length)];
             data.push({ 
                 id: this.id++,
-                label: s.createValueStream(label)
+                label: sp.createValueStream(label)
             }); 
         }
         return data;
