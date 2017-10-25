@@ -4,7 +4,7 @@ import * as utils from '../spui/utils';
 const h = sp.h;
 
 function double(value) { 
-    return value * 2; 
+    return value * 2;
 }
 
 describe('stream', function () {

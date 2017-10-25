@@ -1,5 +1,7 @@
 {
-  "name": "vanilla-ts",
+  "name": "spui",
+  "main": "dist/spui.umd.js",
+  "module": "dist/spui.es5.js",
   "displayName": "vanilla-ts",
   "version": "0.0.1",
   "description": "vanilla-ts",
@@ -9,13 +11,24 @@
     "name": "Sebastien Phaneuf",
     "email": "lochrist@yahoo.com"
   },
-  "devDependencies": {
+  "scripts": {
+    "watch": "run-p  watch-ts watch-spui-rollup watch-tests-rollup watch-todo-mvc-rollup watch-table-tests-rollup",
+    "watch-ts": "tsc -w",
+    "watch-spui-rollup": "rollup -c rollup.spui.ts -w",
+    "watch-tests-rollup": "rollup -c rollup.tests.ts -w",
+    "watch-todo-mvc-rollup": "rollup -c rollup.todo-mvc.ts -w",
+    "watch-table-tests-rollup": "rollup -c rollup.table-tests.ts -w"
+  },
+  "dependencies": {
+    "@types/jasmine": "^2.5.47",
+    "rollup": "^0.50.0",
     "tslint": "^5.5.0",
     "tslint-eslint-rules": "^4.1.1",
     "typescript": "~2.4.2"
   },
-  "dependencies": {
-    "@types/jasmine": "^2.5.47",
-    "@types/requirejs": "^2.1.28"
+  "devDependencies": {
+    "bootstrap": "^3.3.7",
+    "jasmine": "^2.8.0",
+    "npm-run-all": "^4.1.1"
   }
 }
