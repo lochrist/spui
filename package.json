@@ -10,21 +10,21 @@
     "email": "lochrist@yahoo.com"
   },
   "scripts": {
-    "watch": "tsc && run-p watch-ts watch-spui-rollup watch-tests-rollup watch-todo-mvc-rollup watch-table-tests-rollup",
+    "watch": "tsc && run-p watch-ts watch-rollup",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
-    "watch-spui-rollup": "rollup -c rollup.spui.ts -w",
-    "watch-tests-rollup": "rollup -c rollup.tests.ts -w",
-    "watch-todo-mvc-rollup": "rollup -c rollup.todo-mvc.ts -w",
-    "watch-table-tests-rollup": "rollup -c rollup.table-tests.ts -w"
+    "watch-rollup": "rollup -c rollup.config.ts -w"
   },
   "devDependencies": {
     "@types/jasmine": "^2.5.47",
+    "@types/node": "^8.0.0",
     "bootstrap": "^3.3.7",
     "jasmine": "^2.8.0",
     "npm-run-all": "^4.1.1",
-    "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup": "^0.50.0",
+    "rollup-plugin-commonjs": "^8.2.4",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
     "tslint": "^5.5.0",
     "tslint-eslint-rules": "^4.1.1",
     "typescript": "~2.4.2"
