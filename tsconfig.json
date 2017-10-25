@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "moduleResolution": "node",
     "target": "es6",
     "module": "es2015",
     "sourceMap": true,
@@ -8,6 +9,9 @@
     "experimentalDecorators": true,
     "removeComments": false,
     "noImplicitAny": false,
-    "outDir": "es"
+    "outDir": "es",
+    "typeRoots": [
+        "node_modules/@types"
+    ]
   }
 }

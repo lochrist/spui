@@ -1,3 +1,5 @@
+import sourceMaps from 'rollup-plugin-sourcemaps';
+
 export default {
     input: "es/spui/index.js",
     output: {
@@ -5,5 +7,8 @@ export default {
         format: "umd"
     },
     sourcemap: true,
-    name: "spui"
+    name: "spui",
+    plugins: [
+        sourceMaps()
+    ]
 }
