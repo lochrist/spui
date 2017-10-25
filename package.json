@@ -10,10 +10,11 @@
     "email": "lochrist@yahoo.com"
   },
   "scripts": {
-    "watch": "tsc && run-p watch-ts watch-rollup",
+    "build": "run-s clean build-ts bundle",
+    "watch": "tsc && run-p \"build-ts -- -w\" \"bundle -- -w\"",
     "build-ts": "tsc",
-    "watch-ts": "tsc -w",
-    "watch-rollup": "rollup -c rollup.config.ts -w"
+    "bundle": "rollup -c rollup.config.ts",
+    "clean": "rm -fr dist es"
   },
   "devDependencies": {
     "@types/jasmine": "^2.5.47",
