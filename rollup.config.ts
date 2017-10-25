@@ -1,6 +1,4 @@
 import sourceMaps from 'rollup-plugin-sourcemaps';
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
 
 const path = require('path');
 const fs = require('fs');
@@ -20,8 +18,6 @@ function createBundleConfig(input, outputName = undefined, bundleName = undefine
         sourcemap: true,
         name: bundleName,
         plugins: [
-            commonjs(),
-            resolve(),
             sourceMaps()
         ]
     }
