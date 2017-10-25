@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Markdown Editor</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        p {
+            margin: 0 0 10px;
+        }
+
+        #editor {
+            display: flex;
+            height: 100%;
+        }
+
+        .input,
+        .preview {
+            box-sizing: border-box;
+            height: 100%;
+            margin: 0;
+            padding: 10px;
+            width: 50%;
+        }
+
+        .input {
+            border: 0;
+            border-right: 1px solid #ccc;
+            outline: none;
+            resize: none;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../../dist/examples/editor/index.js"></script>
+</body>
+
+</html>
