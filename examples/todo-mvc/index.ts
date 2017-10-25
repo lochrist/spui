@@ -9,7 +9,7 @@ function createTodo(title: string) {
     };
 }
 
-// function spuiTodo () {
+function spuiTodo () {
     const newTitle = sp.createValueStream('');
     const todos = new sp.ObservableArray();
     
@@ -36,6 +36,6 @@ function createTodo(title: string) {
     ]);
 
     document.body.appendChild(view);
-// }
+}
 
-// spuiTodo();
+spuiTodo();

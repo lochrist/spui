@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Mosaic</title>
+    <style>
+        #root {
+            margin: auto;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .slice {
+            animation: enter 1s;
+            animation-fill-mode: forwards;
+            background-image: url(flowers.jpg);
+            height: 60px;
+            float: left;
+            opacity: 0;
+            width: 60px;
+        }
+
+        .slice:nth-child(10n) {
+            clear: right;
+        }
+
+        .exit {
+            animation: exit 1s;
+        }
+
+        @keyframes enter {
+            from {
+                opacity: 0;
+                transform: rotate(-90deg) scale(0);
+            }
+            to {
+                opacity: 1;
+                transform: rotate(0) scale(1);
+            }
+        }
+
+        @keyframes exit {
+            from {
+                opacity: 1;
+                transform: rotate(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: rotate(90deg) scale(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <script type="text/javascript" charset="utf-8" src="../../dist/examples/mosaic/index.js"></script>
+</body>
+
+</html>
