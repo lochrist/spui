@@ -1,10 +1,8 @@
 {
   "name": "spui",
-  "main": "dist/spui.umd.js",
-  "module": "dist/spui.es5.js",
-  "displayName": "vanilla-ts",
+  "displayName": "spui",
   "version": "0.0.1",
-  "description": "vanilla-ts",
+  "description": "spui",
   "license": "MIT",
   "author": {
     "url": "https://github.com/lochrist",
@@ -20,17 +18,15 @@
     "watch-todo-mvc-rollup": "rollup -c rollup.todo-mvc.ts -w",
     "watch-table-tests-rollup": "rollup -c rollup.table-tests.ts -w"
   },
-  "dependencies": {
+  "devDependencies": {
     "@types/jasmine": "^2.5.47",
+    "bootstrap": "^3.3.7",
+    "jasmine": "^2.8.0",
+    "npm-run-all": "^4.1.1",
+    "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup": "^0.50.0",
     "tslint": "^5.5.0",
     "tslint-eslint-rules": "^4.1.1",
     "typescript": "~2.4.2"
-  },
-  "devDependencies": {
-    "bootstrap": "^3.3.7",
-    "jasmine": "^2.8.0",
-    "npm-run-all": "^4.1.1",
-    "rollup-plugin-sourcemaps": "^0.4.2"
   }
 }
