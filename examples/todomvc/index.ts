@@ -2,8 +2,6 @@ import * as sp from '../../spui/index';
 import * as utils from '../../spui/utils';
 const h = sp.h;
 
-
-
 class Todo {
     title: sp.Stream;
     completed: sp.Stream;
@@ -89,7 +87,6 @@ class Store {
         }
     }
 }
-
 
 class App {
     store: Store;

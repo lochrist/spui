@@ -99,10 +99,157 @@ describe('stream', function () {
     });
 });
 
-describe('observable array', function () {
-    it('create no param', function () {
-        let stream = sp.createValueStream();
-        expect(stream()).toBeUndefined();
+describe('filter', function () {
+    function isEven(value) {
+        return value % 2 === 0;
+    }
+
+    function isOdd(value) {
+        return value % 2 === 1;
+    }
+
+    function divisibleBy3(value) {
+        return value % 3 === 0;
+    }
+
+    function createSrc(srcValues: any[]) {
+        const src = new sp.ObservableArray<any>();
+        src.push(...srcValues);
+        return src;
+    }
+
+    function arrayEqual(a1, a2) {
+        if (a1.length !== a2.length) {
+            return false;
+        }
+        for (let i = 0; i < a1.length; ++i) {
+            if (a1[i] !== a2[i])  {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function expectArrayEqual(a1, a2) {
+        expect(arrayEqual(a1, a2)).toEqual(true);
+    }
+
+    it('create filter', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        expect(filter.src).toEqual(src);
+        expect(filter.predicate).toEqual(isEven);
+        expectArrayEqual(filter.filtered, [2, 4, 6]);
+    });
+
+    it('pop', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        src.pop();
+        expectArrayEqual(filter.filtered, [2, 4]);
+        src.pop();
+        expectArrayEqual(filter.filtered, [2, 4]);
+    });
+
+    it('push', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        src.push(7, 8, 9, 10);
+        expectArrayEqual(filter.filtered, [2, 4, 6, 8, 10]);
+    });
+
+    it('reverse', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        src.reverse();
+        expectArrayEqual(filter.filtered, [6, 4, 2]);
+    });
+
+    it('shift', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        src.shift();
+        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        src.shift();
+        expectArrayEqual(filter.filtered, [4, 6]);
+    });
+
+    it('sort', function () {
+        const src = createSrc([3, 2, 1, 6, 5, 4]);
+        const filter = new sp.Filter(src, isEven);
+        expectArrayEqual(filter.filtered, [2, 6, 4]);
+        src.sort();
+        expectArrayEqual(filter.filtered, [2, 4, 6]);
+    });
+
+    it('splice 1', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        src.splice(3);
+        expectArrayEqual(filter.filtered, [2]);
+    });
+
+    it('splice 2', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        src.splice(3, 2);
+        expectArrayEqual(filter.filtered, [2, 6]);
+    });
+
+    it('splice 3', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        src.splice(-3, 2);
+        expectArrayEqual(filter.filtered, [2, 6]);
+    });
+
+    it('splice 4', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        src.splice(3, 0, 11, 22, 33, 44);
+        expectArrayEqual(filter.filtered, [2, 22, 44, 4, 6]);
+    });
+
+    it('splice 5', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        src.splice(-3, 1, 11, 22, 33, 44);
+        expectArrayEqual(filter.filtered, [2, 22, 44, 6]);
+    });
+
+    it('unshift', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        src.unshift();
+        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        src.unshift(11, 22, 33, 44);
+        expectArrayEqual(filter.filtered, [22, 44, 2, 4, 6]);
+    });
+
+    it('changes', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        
+        src.applyChanges(() => {
+            src.push(-1, -2, -3, -4);
+            src.sort();
+            src.reverse();
+        });
+
+        expectArrayEqual(filter.filtered, [6, 4, 2, -4, -2]);
+    });
+
+    it('apply filter', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        filter.applyFilter();
+        expectArrayEqual(filter.filtered, [2, 4, 6]);
+
+        filter.applyFilter(divisibleBy3);
+        expectArrayEqual(filter.filtered, [3, 6]);
+
+        filter.applyFilter(isOdd);
+        expectArrayEqual(filter.filtered, [1, 3, 5]);
     });
 });
 

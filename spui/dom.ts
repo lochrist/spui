@@ -150,6 +150,7 @@ export class SyncNodeList {
         this.listRootNode = listRootNode;
         this.models = models;
         this.nodeCreator = nodeCreator;
+        // TODO: What to do with key?
         this.key = key;
         this.modelToNode = new Map<any, HTMLElement>();
         models.addListener(this.onModelChange.bind(this));
