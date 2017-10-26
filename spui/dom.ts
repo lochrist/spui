@@ -3,8 +3,9 @@ import * as s from './stream';
 import {ObservableArray} from './observable-array';
 
 type AttrGenerator = (HTMLElement) => Object;
-type ChildGenerator = (HTMLElement) => HTMLElement | string;
-type Child = string | HTMLElement | ChildGenerator;
+type ElementGenerator = (HTMLElement) => HTMLElement;
+type StringGenerator = (HTMLElement) => string;
+type Child = string | HTMLElement | ElementGenerator | StringGenerator;
 type Children = Array<any> | Child;
 
 export function h(tagName: string, attrs?: AttrGenerator | Object, children?: Children) {
@@ -119,14 +120,14 @@ function appendChild(element: HTMLElement, child: Child) {
             resolvedChild = child(element);
         });
 
-        let childNode = isString(resolvedChild) ? document.createTextNode(resolvedChild) : resolvedChild;
+        let childNode = isNode(resolvedChild) ? resolvedChild : document.createTextNode(resolvedChild);
         element.appendChild(childNode);
 
         if (computation.dependencies.length) {
             // Auto update in case children is a stream
             s.addTransform(computation.computedStream, () => {
                 const oldChildNode = childNode;
-                childNode = isString(resolvedChild) ? document.createTextNode(resolvedChild) : resolvedChild;
+                childNode = isNode(resolvedChild) ? resolvedChild : document.createTextNode(resolvedChild);
                 element.replaceChild(childNode, oldChildNode);
             });
         }
@@ -249,7 +250,7 @@ export function getNodeList(nodeListElement: HTMLElement) : SyncNodeList {
     return (parent as any)._nodeList;
 }
 
-export function eventTarget(eventAttrName: string, stream: s.Stream) {
+export function eventTarget(eventAttrName: string, stream: s.Stream | s.Transform) {
     return function (event) {
         return stream(event.target[eventAttrName]);
     }

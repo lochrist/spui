@@ -97,8 +97,13 @@ describe('stream', function () {
             expect(computedStream()).toEqual(7);
         });
     });
-    
-    
+});
+
+describe('observable array', function () {
+    it('create no param', function () {
+        let stream = sp.createValueStream();
+        expect(stream()).toBeUndefined();
+    });
 });
 
 let _id = 0;
@@ -275,6 +280,14 @@ describe('dom generation', function () {
     describe('create elements with children (static)', function () {
         itt('with multiple text node', function (title) {
             const childrenText = ['this', ' is', ' something!'];
+            const el = createElement('div', {}, childrenText);
+            expect(el.children.length).toEqual(0);
+            expect(el.childNodes.length).toEqual(3);
+            expect(el.textContent).toEqual(childrenText.join(''));
+        });
+
+        itt('with multiple number node', function (title) {
+            const childrenText = [7, 69, 666];
             const el = createElement('div', {}, childrenText);
             expect(el.children.length).toEqual(0);
             expect(el.childNodes.length).toEqual(3);

@@ -1,7 +1,7 @@
 import {isFunction, remove} from './utils';
 
-type Functor = () => any;
-type Transform = (value) => any;
+export type Functor = () => any;
+export type Transform = (value) => any;
 export interface GetterSetter {
     (value?): any;
 }
