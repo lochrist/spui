@@ -27,7 +27,7 @@ function spuiTodo () {
         sp.nodeList('ul', {}, todos, (listNode: HTMLElement, todo: any, index: number) => {
             return h('div', {}, [
                 h('input', { type: 'checkbox', value: todo.done, onclick: sp.eventTarget('checked', todo.done) }),
-                h('input', { type: 'text', value: todo.title, oninput: sp.eventTarget('value', todo.title) }),
+                h('input', { type: 'text', value: todo.title, onchange: sp.eventTarget('value', todo.title) }),
                 h('a', { onclick: () => utils.remove(todos, todo) }, 'X'),
                 // Create bindings on usage of title and done.
                 h('span', {}, () => 'title: ' + todo.title() + ' done: ' + todo.done())
