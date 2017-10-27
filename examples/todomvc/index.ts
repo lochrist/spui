@@ -69,7 +69,7 @@ class Store {
         switch (this.filterName()) {
             case 'active': return !todo.completed();
             case 'completed': return todo.completed();
-            default: return true;
+            default: case 'all': return true;
         }
     }
 
@@ -111,12 +111,12 @@ class App {
         this.store.setAllCompleted(this.toggleAllElement.checked);
     }
 
-    toggle(todo: Todo) {
+    toggle(todo: Todo, e: MouseEvent) {
         this.store.setCompleted(todo, !todo.completed());
     }
 
     createView() {
-        const visibleIfTodo = () => {
+        const visibleIfAnyTodo = () => {
             return this.store.todoCount() > 0 ? '' : 'none';
         }
 
@@ -125,22 +125,23 @@ class App {
                 h('h1', {}, 'todos'),
                 h('input', {id: 'new-todo', placeholder: 'What needs to be done?', autofocus: true, onchange: this.add.bind(this) })
             ]),
-            h('section', { id: 'main', style: { display: visibleIfTodo } }, [
+            h('section', { id: 'main', style: { display: visibleIfAnyTodo } }, [
                 this.toggleAllElement = h('input', {id: 'toggle-all', type: 'checkbox', checked: () => this.store.remaining() === 0, onclick: () => this.toggleAll() }) as HTMLInputElement,
                 h('label', { for: 'toggle-all', onclick: this.toggleAll.bind(this) }, 'Mark all as complete'),
                 sp.nodeList('ul', {id: 'todo-list'}, this.store.todoFilter.filtered, (listElement, todo: Todo) => {
                     let inputTitleElement;
                     return h('li', { class: {completed: todo.completed,  editing: () => todo === this.store.editing() } }, [
                         h('div', {class: 'view'}, [
-                            h('input', {class: 'toggle', type: 'checkbox', checked: todo.completed, onclick: () => this.toggle(todo) }),
-                            h('label', { ondblclick: () => this.edit(todo, inputTitleElement) }, () => todo.title()),
+                            h('input', {class: 'toggle', type: 'checkbox', checked: todo.completed, onclick: this.toggle.bind(this, todo) }),
+                            // TODO: update stream as children generator
+                            h('label', { disabled: todo.completed, ondblclick: () => this.edit(todo, inputTitleElement) }, () => todo.title()),
                             h('button', {class: 'destroy', onclick: () => this.store.destroy(todo) }),
                         ]),
                         inputTitleElement = h('input', { class: 'edit', onchange: sp.eventTarget('value', this.store.updateTitle.bind(this.store)) })
                     ])
                 }),
             ]),
-            h('footer', { id: 'footer', style: { display: visibleIfTodo } }, [
+            h('footer', { id: 'footer', style: { display: visibleIfAnyTodo } }, [
                 h('span', {id: 'todo-count'}, [
                     h('strong', {}, () => this.store.remaining()),
                     () => this.store.remaining() === 1 ? ' item left' : ' items left'

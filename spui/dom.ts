@@ -68,11 +68,15 @@ function setAttr(element: HTMLElement, attr: string, value: any) {
             (element as any).value = value;
         break;
         default: 
-            if (value === false) {
+            if (attr in element) {
+                element[attr] = value;
+            } else if (value === false) {
                 element.removeAttribute(attr);
-            } else {
+            } else if (value === true) {
                 // If value is a boolean, set it to "" to only enable it in DOM.
-                element.setAttribute(attr, value === true ? "" : value);
+                element.setAttribute(attr, "");
+            } else {
+                element.setAttribute(attr, value);
             }
     }
 }
