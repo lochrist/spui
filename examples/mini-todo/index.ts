@@ -2,35 +2,36 @@ import * as sp from '../../spui/index';
 import * as utils from '../../spui/utils';
 const h = sp.h;
 
-function createTodo(title: string) {
-    return {
-        title: sp.valueStream(title),
-        done: sp.valueStream(false)
-    };
-}
-
 function spuiTodo () {
     const newTitle = sp.valueStream('');
     const todos = new sp.ObservableArray();
-    
+    const createTodo = (title: string, done = false) => {
+        return {
+            title: sp.valueStream(title),
+            done: sp.valueStream(done)
+        };
+    }
     const addTodo = () => {
-        todos.push(createTodo(newTitle()));
-        newTitle('');
+        if (newTitle()) {
+            todos.push(createTodo(newTitle()));
+            newTitle('');
+        }
     };
 
-    todos.push(createTodo('something'));
-    todos.push(createTodo('something else'));
+    todos.push(createTodo('hit the gym'));
+    todos.push(createTodo('procrastinate', true));
+    todos.push(createTodo('write unit tests'));
 
-    const view = h('div', {}, [
-        h('input', { type: 'text', value: newTitle, oninput: sp.selectTargetAttr('value', newTitle) }),
-        h('button', { onclick: addTodo }, '+'),
+    const view = h('div', { id: 'todoapp'}, [
+        h('div', {class: 'header'}, [
+            h('h3', {}, 'todo express'),
+            h('input', { type: 'text', value: newTitle, placeholder: 'what is up?', oninput: sp.selectTargetAttr('value', newTitle) }),
+            h('span', { class: 'addBtn', onclick: addTodo }, 'Add'),
+        ]),
         sp.elementList('ul', {}, todos, (listNode: HTMLElement, todo: any, index: number) => {
-            return h('div', {}, [
-                h('input', { type: 'checkbox', value: todo.done, onclick: sp.selectTargetAttr('checked', todo.done) }),
-                h('input', { type: 'text', value: todo.title, onchange: sp.selectTargetAttr('value', todo.title) }),
-                h('a', { onclick: () => utils.remove(todos, todo) }, 'X'),
-                // Create bindings on usage of title and done.
-                h('span', {}, () => 'title: ' + todo.title() + ' done: ' + todo.done())
+            return h('li', { class: { checked: todo.done }, onclick: () => todo.done(!todo.done()) }, [
+                todo.title,
+                h('span', {class: 'close', onclick: () => utils.remove(todos, todo)}, 'x')
             ]);
         })
     ]);

@@ -1,3 +1,4 @@
-# SPUI
+# SPUI - SimPle UI
 
-UI library that is DOM based and that handles automatic patching of elements according to modle changes.
+UI library using an hyperscript syntax that help creates HTML and automatically update the DOM when model changes.
+

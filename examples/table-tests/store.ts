@@ -65,7 +65,6 @@ export class Store {
     swapRows() {
         if (this.data.length > 10) {
             this.data.applyChanges(() => {
-                 // TODO can it be better?
                 const a = this.data[4];
                 const b = this.data[9];
                 this.data.splice(4, 1, b);

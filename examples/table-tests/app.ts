@@ -80,7 +80,6 @@ export class App {
                 ])
             ),
 
-            // TODO handle selected
             h('table', {class: 'table table-hover table-striped test-data'},
                 this.tableEl = elementList('tbody', {}, this.store.data, (tableElement, data) => {
                     return h('tr', {}, [

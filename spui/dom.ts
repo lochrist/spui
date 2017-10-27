@@ -139,16 +139,16 @@ function appendChild(element: HTMLElement, child: Child) {
     }
 }
 
-export class ElementListModelMapper {
+export class ElementListMapper {
     models: ObservableArray<any>;
     listRootElement: HTMLElement;
-    nodeCreator: ModelElementCreator;
+    elementCreator: ModelElementCreator;
     key: string;
     modelToElement: Map<any, HTMLElement>;
-    constructor(listRootElement: HTMLElement, models: ObservableArray<any>, nodeCreator: ModelElementCreator, key?: string) {
+    constructor(listRootElement: HTMLElement, models: ObservableArray<any>, elementCreator: ModelElementCreator, key?: string) {
         this.listRootElement = listRootElement;
         this.models = models;
-        this.nodeCreator = nodeCreator;
+        this.elementCreator = elementCreator;
         // TODO: What to do with key?
         this.key = key;
         this.modelToElement = new Map<any, HTMLElement>();
@@ -234,7 +234,7 @@ export class ElementListModelMapper {
     }
 
     createElement(model, index: number) : HTMLElement {
-        const childNode = this.nodeCreator(this.listRootElement, model, index);
+        const childNode = this.elementCreator(this.listRootElement, model, index);
         this.modelToElement.set(model, childNode);
         return childNode;
     }
@@ -242,7 +242,7 @@ export class ElementListModelMapper {
 
 export function elementList(tagName: string, attrs: Attrs, models: ObservableArray<any>, nodeCreator: ModelElementCreator, key?: string) {
     const listRootElement = h(tagName, attrs);
-    (parent as any)._elementList = new ElementListModelMapper(listRootElement, models, nodeCreator, key);
+    (parent as any)._elementList = new ElementListMapper(listRootElement, models, nodeCreator, key);
     return  listRootElement;
 }
 
@@ -250,7 +250,7 @@ export function isElementList(nodeListElement: HTMLElement) : boolean {
     return !!((parent as any)._elementList);
 }
 
-export function getElementList(nodeListElement: HTMLElement): ElementListModelMapper {
+export function getElementList(nodeListElement: HTMLElement): ElementListMapper {
     return (parent as any)._elementList;
 }
 
