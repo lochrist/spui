@@ -13,7 +13,6 @@ class Todo {
 class Store {
     todos: sp.ObservableArray<Todo>;
     editing: sp.Stream = sp.createValueStream(null);
-    filter: string = '';
     todoCount: sp.Stream = sp.createValueStream(0);
     remaining: sp.Stream = sp.createValueStream(0);
     showing: sp.Stream = sp.createValueStream('');
@@ -63,6 +62,7 @@ class Store {
     reset() {
         this.editing(null);
     }
+
     applyFilter() {
         /*
         state.showing = vnode.attrs.status || ''
@@ -143,7 +143,6 @@ class App {
                     h('strong', {}, () => this.store.remaining()),
                     () => this.store.remaining() === 1 ? ' item left' : ' items left'
                 ]),
-
                 h('ul', {id: 'filters'}, [
                     h('li', {}, h('a', { class: {selected: () => this.store.showing() === '' } }, 'All')),
                     h('li', {}, h('a', { class: {selected: () => this.store.showing() === 'active' } }, 'Active')),

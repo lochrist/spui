@@ -26,17 +26,33 @@ function createTodo(title, done = false) {
 
  */
 
+function thisIsSomething(a) {
+    // contains comment
+    if (a) {
+        console.log('ping');
+    }
 
+    return '';
+}
 
+function md(mdText) {
+    return (window as any).marked(mdText);
+}
 
+function createSnippet(f) {
+    return md('```lua\n' + f.toString() + '\n```');
+}
 
-let a = new sp.ObservableArray<any>();
-a.push(createTodo('t1'));
-a.push(createTodo('t2'));
-a.push(createTodo('t3', true));
-a.push(createTodo('t4'));
+let snippet;
+const view = h('div', {class: 'container'}, [
+    h('div', {class: 'row'}, [
+        h('h3', {class: 'col-md-12'}, 'This is a big title!'),
+        snippet = h('div', {class: 'col-md-7'}),
+        h('div', { class: 'col-md-3' }, [
+            h('input', {value: 'ping'})
+        ])
+    ])
+]);
 
-const isDone = t => t.done;
-
-const f = new sp.Filter(a, isDone);
-console.log(f);
+snippet.innerHTML = createSnippet(thisIsSomething);
+document.body.appendChild(view);

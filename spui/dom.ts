@@ -2,11 +2,12 @@ import { isNode, isFunction, isString, isObject, expandValue, StringKeyMap} from
 import * as s from './stream';
 import {ObservableArray} from './observable-array';
 
-type AttrGenerator = (HTMLElement) => Object;
-type ElementGenerator = (HTMLElement) => HTMLElement;
-type StringGenerator = (HTMLElement) => string;
-type Child = string | HTMLElement | ElementGenerator | StringGenerator;
-type Children = Array<any> | Child;
+export type AttrGenerator = (HTMLElement) => Object;
+export type ElementGenerator = (HTMLElement) => HTMLElement;
+export type StringGenerator = (HTMLElement) => string;
+export type Child = string | HTMLElement | ElementGenerator | StringGenerator;
+export type Children = Array<any> | Child;
+export type NodeCreator = (listRootNode: HTMLElement, model: any, indeX: number) => HTMLElement;
 
 export function h(tagName: string, attrs?: AttrGenerator | Object, children?: Children) {
     const element = document.createElement(tagName);
@@ -138,7 +139,6 @@ function appendChild(element: HTMLElement, child: Child) {
     }
 }
 
-type NodeCreator = (listRootNode: HTMLElement, model: any, indeX: number) => HTMLElement;
 export class SyncNodeList {
     models: ObservableArray<any>;
     listRootNode: HTMLElement;

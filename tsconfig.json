@@ -9,6 +9,8 @@
         "experimentalDecorators": true,
         "removeComments": false,
         "noImplicitAny": false,
+        "declaration": true,
+        "declarationDir": "es/types",
         "outDir": "es",
         "typeRoots": [
             "node_modules/@types"
