@@ -1,5 +1,5 @@
 import {Store} from './store';
-import {h, nodeList, getNodeList} from '../../spui/dom';
+import {h, elementList, getElementList} from '../../spui/dom';
 import * as s from '../../spui/stream';
 
 const performance = window.performance;
@@ -82,7 +82,7 @@ export class App {
 
             // TODO handle selected
             h('table', {class: 'table table-hover table-striped test-data'},
-                this.tableEl = nodeList('tbody', {}, this.store.data, (tableElement, data) => {
+                this.tableEl = elementList('tbody', {}, this.store.data, (tableElement, data) => {
                     return h('tr', {}, [
                         h('td', {class: 'col-md-1'}, data.id),
                         h('td', {class: 'col-md-4'},
@@ -106,9 +106,9 @@ export class App {
             }
 
             if (selectedId !== undefined) {
-                const nodeList = getNodeList(this.tableEl);
+                const nodeList = getElementList(this.tableEl);
                 const selectedModel = this.store.data.find(model => model.id === selectedId);
-                this.selectedElement = nodeList.modelToNode.get(selectedModel);
+                this.selectedElement = nodeList.modelToElement.get(selectedModel);
                 this.selectedElement.className = 'danger';
             }
         });

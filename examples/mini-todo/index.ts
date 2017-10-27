@@ -4,13 +4,13 @@ const h = sp.h;
 
 function createTodo(title: string) {
     return {
-        title: sp.createValueStream(title),
-        done: sp.createValueStream(false)
+        title: sp.valueStream(title),
+        done: sp.valueStream(false)
     };
 }
 
 function spuiTodo () {
-    const newTitle = sp.createValueStream('');
+    const newTitle = sp.valueStream('');
     const todos = new sp.ObservableArray();
     
     const addTodo = () => {
@@ -22,12 +22,12 @@ function spuiTodo () {
     todos.push(createTodo('something else'));
 
     const view = h('div', {}, [
-        h('input', { type: 'text', value: newTitle, oninput: sp.eventTarget('value', newTitle) }),
+        h('input', { type: 'text', value: newTitle, oninput: sp.selectTargetAttr('value', newTitle) }),
         h('button', { onclick: addTodo }, '+'),
-        sp.nodeList('ul', {}, todos, (listNode: HTMLElement, todo: any, index: number) => {
+        sp.elementList('ul', {}, todos, (listNode: HTMLElement, todo: any, index: number) => {
             return h('div', {}, [
-                h('input', { type: 'checkbox', value: todo.done, onclick: sp.eventTarget('checked', todo.done) }),
-                h('input', { type: 'text', value: todo.title, onchange: sp.eventTarget('value', todo.title) }),
+                h('input', { type: 'checkbox', value: todo.done, onclick: sp.selectTargetAttr('checked', todo.done) }),
+                h('input', { type: 'text', value: todo.title, onchange: sp.selectTargetAttr('value', todo.title) }),
                 h('a', { onclick: () => utils.remove(todos, todo) }, 'X'),
                 // Create bindings on usage of title and done.
                 h('span', {}, () => 'title: ' + todo.title() + ' done: ' + todo.done())

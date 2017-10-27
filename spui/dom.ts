@@ -1,4 +1,4 @@
-import { isNode, isFunction, isString, isObject, expandValue, StringKeyMap} from './utils';
+import { isNode, isFunction, isString, isObject, expandValue, StringKeyMap, Functor1P} from './utils';
 import * as s from './stream';
 import {ObservableArray} from './observable-array';
 
@@ -7,7 +7,7 @@ export type ElementGenerator = () => HTMLElement;
 export type StringGenerator = () => string;
 export type Child = string | HTMLElement | ElementGenerator | StringGenerator;
 export type Children = Array<Child> | Child;
-export type NodeCreator = (listRootNode: HTMLElement, model: any, indeX: number) => HTMLElement;
+export type ModelElementCreator = (listRootElement: HTMLElement, model: any, indeX: number) => HTMLElement;
 
 export function h(tagName: string, attrs?: Attrs, children?: Children) {
     const element = document.createElement(tagName);
@@ -21,18 +21,19 @@ export function h(tagName: string, attrs?: Attrs, children?: Children) {
     return element;
 }
 
-function setAttrs(element: HTMLElement, attr: StringKeyMap<any>) {
+function setAttrs(element: HTMLElement, attr: Attrs) {
     // For each attr, setup a computation. When that computation is triggered, we patch this argument:
     for (const attrName in attr) {
         const attrValue = attr[attrName];
-        // For event avoid listening for changes.
+        // Event registration handling.
         if (attrName.startsWith('on')) {
             const eventName = attrName.slice(2);
             element.addEventListener(eventName, attrValue);
             continue;
         }
 
-        // If attr value is an object (for classes and styles we might have to setup a computation)
+        // If attrValue is an object (for classes and styles)
+        // or if attrValue is a function: setup a computation
         if (isFunction(attrValue) || isObject(attrValue)) {
             // For all attributes resulting from a computation setup auto update:
             const computation = s.computeStream(() => {
@@ -62,11 +63,6 @@ function setAttr(element: HTMLElement, attr: string, value: any) {
         case 'style':
             setStyle(element, value);
         break;
-        case 'value':
-            // value is handled differently than attributes. the value attributes only indicates the "initial" value. 
-            // You need to use "value" property to actually modify the node.
-            (element as any).value = value;
-        break;
         default: 
             if (attr in element) {
                 element[attr] = value;
@@ -81,7 +77,7 @@ function setAttr(element: HTMLElement, attr: string, value: any) {
     }
 }
 
-function setClass(element: HTMLElement, className: string | Object) {
+function setClass(element: HTMLElement, className: string | Attrs) {
     if (isString(className)) {
         element.className = className;
     } else {
@@ -97,7 +93,7 @@ function setClass(element: HTMLElement, className: string | Object) {
     }
 }
 
-function setStyle(element: HTMLElement, style: Object | string, value?) {
+function setStyle(element: HTMLElement, style: Attrs | string, value?) {
     if (isString(style)) {
         element.setAttribute('style', style);
     } else {
@@ -143,76 +139,75 @@ function appendChild(element: HTMLElement, child: Child) {
     }
 }
 
-export class SyncNodeList {
+export class ElementListModelMapper {
     models: ObservableArray<any>;
-    listRootNode: HTMLElement;
-    nodeCreator: NodeCreator;
+    listRootElement: HTMLElement;
+    nodeCreator: ModelElementCreator;
     key: string;
-    modelToNode: Map<any, HTMLElement>;
-    updateFunc: (HTMLElement) => void;
-    constructor(listRootNode: HTMLElement, models: ObservableArray<any>, nodeCreator: NodeCreator, key?: string) {
-        this.listRootNode = listRootNode;
+    modelToElement: Map<any, HTMLElement>;
+    constructor(listRootElement: HTMLElement, models: ObservableArray<any>, nodeCreator: ModelElementCreator, key?: string) {
+        this.listRootElement = listRootElement;
         this.models = models;
         this.nodeCreator = nodeCreator;
         // TODO: What to do with key?
         this.key = key;
-        this.modelToNode = new Map<any, HTMLElement>();
+        this.modelToElement = new Map<any, HTMLElement>();
         models.addListener(this.onModelChange.bind(this));
 
         if (this.models.length) {
-            const nodes = this.createNodes(this.models, 0);
-            this.listRootNode.appendChild(nodes);
+            const nodes = this.createElements(this.models, 0);
+            this.listRootElement.appendChild(nodes);
         }
     }
 
     onModelChange (op: string, args: any[]) {
         switch(op) {
             case 'pop':
-                this.listRootNode.removeChild(this.listRootNode.lastChild);
+                this.listRootElement.removeChild(this.listRootElement.lastChild);
                 break;
             case 'push': {
-                const nodes = this.createNodes(args, this.models.length - args.length);
-                this.listRootNode.appendChild(nodes);
+                const nodes = this.createElements(args, this.models.length - args.length);
+                this.listRootElement.appendChild(nodes);
                 break;
             }
             case 'reverse': {
                 const frag = new DocumentFragment();
-                while (this.listRootNode.lastChild) {
-                    frag.appendChild(this.listRootNode.removeChild(this.listRootNode.lastChild));
+                while (this.listRootElement.lastChild) {
+                    frag.appendChild(this.listRootElement.removeChild(this.listRootElement.lastChild));
                 }
-                this.listRootNode.appendChild(frag);
+                this.listRootElement.appendChild(frag);
                 break;
             };
             case 'splice':
-                const childNodes = this.listRootNode.childNodes;
+                const childNodes = this.listRootElement.childNodes;
                 const spliceStart = args[0] < 0 ? childNodes.length + args[0] : args[0];
                 const deleteCount = args.length > 1 ? args[1] : childNodes.length - spliceStart;
                 const deleteStop = spliceStart + deleteCount;
                 for (let i = spliceStart; i < deleteStop && childNodes[spliceStart]; i++) {
-                    this.listRootNode.removeChild(childNodes[spliceStart]);
+                    this.listRootElement.removeChild(childNodes[spliceStart]);
                 }
 
                 if (args.length > 2) {
-                    const nodes = this.createNodes(args.slice(2), spliceStart);
-                    this.listRootNode.insertBefore(nodes, childNodes[spliceStart]);
+                    const nodes = this.createElements(args.slice(2), spliceStart);
+                    this.listRootElement.insertBefore(nodes, childNodes[spliceStart]);
                 }
                 break;
             case 'shift':
-                this.listRootNode.removeChild(this.listRootNode.firstChild);
+                this.listRootElement.removeChild(this.listRootElement.firstChild);
                 break;
             case 'sort': {
                 const frag = new DocumentFragment();
                 for (let i = 0; i < this.models.length; ++i) {
-                    const node = this.modelToNode.get(this.models[i]);
-                    this.listRootNode.removeChild(node);
+                    const node = this.modelToElement.get(this.models[i]);
+                    this.listRootElement.removeChild(node);
                     frag.appendChild(node);
                 }
-                this.listRootNode.appendChild(frag);
+                this.listRootElement.appendChild(frag);
                 break;
             }
             case 'unshift': {
-                const nodes = this.createNodes(args, 0);
-                this.listRootNode.insertBefore(nodes, this.listRootNode.firstChild);
+                const nodes = this.createElements(args, 0);
+                this.listRootElement.insertBefore(nodes, this.listRootElement.firstChild);
                 break;
             }
             case 'changes': {
@@ -225,42 +220,42 @@ export class SyncNodeList {
         }
     }
 
-    createNodes(models: Array<any>, startIndex: number) : DocumentFragment | HTMLElement {
+    createElements(models: Array<any>, startIndex: number) : DocumentFragment | HTMLElement {
         if (models.length > 1) {
             const frag = new DocumentFragment();
             for (let i = 0; i < models.length; ++i) {
-                const childNode = this.createNode(models[i], startIndex++);
+                const childNode = this.createElement(models[i], startIndex++);
                 frag.appendChild(childNode);
             }
             return frag;
         }
 
-        return this.createNode(models[0], startIndex);
+        return this.createElement(models[0], startIndex);
     }
 
-    createNode(model, index: number) : HTMLElement {
-        const childNode = this.nodeCreator(this.listRootNode, model, index);
-        this.modelToNode.set(model, childNode);
+    createElement(model, index: number) : HTMLElement {
+        const childNode = this.nodeCreator(this.listRootElement, model, index);
+        this.modelToElement.set(model, childNode);
         return childNode;
     }
 }
 
-export function nodeList(tagName: string, attrs: Attrs, models: ObservableArray<any>, nodeCreator: NodeCreator, key?: string) {
-    const listRootNode = h(tagName, attrs);
-    (parent as any)._nodeList = new SyncNodeList(listRootNode, models, nodeCreator, key);
-    return  listRootNode;
+export function elementList(tagName: string, attrs: Attrs, models: ObservableArray<any>, nodeCreator: ModelElementCreator, key?: string) {
+    const listRootElement = h(tagName, attrs);
+    (parent as any)._elementList = new ElementListModelMapper(listRootElement, models, nodeCreator, key);
+    return  listRootElement;
 }
 
-export function isNodeListElement(nodeListElement: HTMLElement) : boolean {
-    return !!((parent as any)._nodeList);
+export function isElementList(nodeListElement: HTMLElement) : boolean {
+    return !!((parent as any)._elementList);
 }
 
-export function getNodeList(nodeListElement: HTMLElement) : SyncNodeList {
-    return (parent as any)._nodeList;
+export function getElementList(nodeListElement: HTMLElement): ElementListModelMapper {
+    return (parent as any)._elementList;
 }
 
-export function eventTarget(eventAttrName: string, stream: s.Stream | s.Transform) {
+export function selectTargetAttr(eventAttrName: string, functor: s.Stream | Functor1P) {
     return function (event) {
-        return stream(event.target[eventAttrName]);
+        return functor(event.target[eventAttrName]);
     }
 }

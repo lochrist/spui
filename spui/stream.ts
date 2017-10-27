@@ -1,14 +1,11 @@
-import {isFunction, remove} from './utils';
-
-export type Functor = () => any;
-export type Transform = (value) => any;
+import { isFunction, remove, Functor0P, Functor1P} from './utils';
 export interface GetterSetter {
     (value?): any;
 }
 export interface Stream extends GetterSetter {
     _backingValue: any;
-    _listeners?: Array<Transform>;
-    _transform?: Transform;
+    _listeners?: Array<Functor1P>;
+    _transform?: Functor1P;
 }
 export interface Computation {
     computedStream: Stream;
@@ -27,7 +24,7 @@ function setValue(stream, value) {
     }
 }
 
-export function createValueStream(initialValue?, transform?: Transform) : Stream {
+export function valueStream(initialValue?, transform?: Functor1P) : Stream {
     let stream = function (value?) {
         if (arguments.length) {
             setValue(stream, value);
@@ -54,19 +51,19 @@ export function createValueStream(initialValue?, transform?: Transform) : Stream
     return stream;
 }
 
-export function addListener(stream: Stream, listener: Transform) : Functor {
+export function addListener(stream: Stream, listener: Functor1P) : Functor0P {
     if (stream._listeners.indexOf(listener) === -1) {
         stream._listeners.push(listener);
     }
     return () => removeListener(stream, listener);
 }
 
-export function removeListener(valueStream: Stream, listener: Transform) : Stream {
+export function removeListener(valueStream: Stream, listener: Functor1P) : Stream {
     remove(valueStream._listeners, listener);
     return valueStream;
 }
 
-export function addTransform(valueStream: Stream, transform: Transform) {
+export function addTransform(valueStream: Stream, transform: Functor1P) {
     if (valueStream._transform) {
         const firstTransform = valueStream._transform;
         valueStream._transform = value => transform(firstTransform(value));
@@ -75,20 +72,20 @@ export function addTransform(valueStream: Stream, transform: Transform) {
     }
 }
 
-export function map(valueStream: Stream, transform: Transform) : Stream {
-    const computedStream = createValueStream(valueStream(), transform);
-    addListener(valueStream, computedStream);
+export function map(vs: Stream, transform: Functor1P) : Stream {
+    const computedStream = valueStream(vs(), transform);
+    addListener(vs, computedStream);
     return computedStream;
 }
 
 function createComputation() : Computation {
     return {
-        computedStream: createValueStream(),
+        computedStream: valueStream(),
         dependencies: []
     };
 }
 
-export function computeStream(functor: Functor, transform?: Transform) : Computation {
+export function computeStream(functor: Functor0P, transform?: Functor1P) : Computation {
     const computation = createComputation();
     computation.computedStream(compute());
     addTransform(computation.computedStream, compute);
@@ -112,8 +109,8 @@ export function computeStream(functor: Functor, transform?: Transform) : Computa
     }
 }
 
-export function createEventStream(source: EventTarget | string, name: string, useCapture?) {
-    const eventStream = createValueStream();
+export function eventStream(source: EventTarget | string, name: string, useCapture?) {
+    const eventStream = valueStream();
     const element = source instanceof EventTarget ? source : document.querySelector(source);
     element.addEventListener(name, eventStream, !!useCapture);
     return eventStream;

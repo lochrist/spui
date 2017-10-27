@@ -14,7 +14,7 @@ export class Store {
     id: number;
     constructor() {
         this.data = new sp.ObservableArray<any>();
-        this.selected = sp.createValueStream();
+        this.selected = sp.valueStream();
         this.id = 1;
     }
     buildData(count = 1000) {
@@ -23,7 +23,7 @@ export class Store {
             const label = adjectives[random(adjectives.length)] + ' ' + colours[random(colours.length)] + ' ' + nouns[random(nouns.length)];
             data.push({ 
                 id: this.id++,
-                label: sp.createValueStream(label)
+                label: sp.valueStream(label)
             }); 
         }
         return data;

@@ -1,6 +1,8 @@
 export interface StringKeyMap<T> {
     [key: string]: T;
 }
+export type Functor0P = () => any;
+export type Functor1P = (value: any) => any;
 
 export function isFunction(obj): obj is Function {
     return typeof obj === 'function';

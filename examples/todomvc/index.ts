@@ -6,17 +6,17 @@ class Todo {
     title: sp.Stream;
     completed: sp.Stream;
     constructor(title: string) {
-        this.title = sp.createValueStream(title);
-        this.completed = sp.createValueStream(false);
+        this.title = sp.valueStream(title);
+        this.completed = sp.valueStream(false);
     }
 }
 class Store {
     todos: sp.ObservableArray<Todo>;
     todoFilter: sp.Filter<Todo>;
-    editing: sp.Stream = sp.createValueStream(null);
-    todoCount: sp.Stream = sp.createValueStream(0);
-    remaining: sp.Stream = sp.createValueStream(0);
-    filterName: sp.Stream = sp.createValueStream('all');
+    editing: sp.Stream = sp.valueStream(null);
+    todoCount: sp.Stream = sp.valueStream(0);
+    remaining: sp.Stream = sp.valueStream(0);
+    filterName: sp.Stream = sp.valueStream('all');
     constructor() {
         this.todos = new sp.ObservableArray<Todo>();
         this.todoFilter = new sp.Filter<Todo>(this.todos, this.isTodoFiltered.bind(this));
@@ -128,7 +128,7 @@ class App {
             h('section', { id: 'main', style: { display: visibleIfAnyTodo } }, [
                 this.toggleAllElement = h('input', {id: 'toggle-all', type: 'checkbox', checked: () => this.store.remaining() === 0, onclick: () => this.toggleAll() }) as HTMLInputElement,
                 h('label', { for: 'toggle-all', onclick: this.toggleAll.bind(this) }, 'Mark all as complete'),
-                sp.nodeList('ul', {id: 'todo-list'}, this.store.todoFilter.filtered, (listElement, todo: Todo) => {
+                sp.elementList('ul', {id: 'todo-list'}, this.store.todoFilter.filtered, (listElement, todo: Todo) => {
                     let inputTitleElement;
                     return h('li', { class: {completed: todo.completed,  editing: () => todo === this.store.editing() } }, [
                         h('div', {class: 'view'}, [
@@ -136,7 +136,7 @@ class App {
                             h('label', { disabled: todo.completed, ondblclick: () => this.edit(todo, inputTitleElement) }, todo.title),
                             h('button', {class: 'destroy', onclick: () => this.store.destroy(todo) }),
                         ]),
-                        inputTitleElement = h('input', { class: 'edit', onchange: sp.eventTarget('value', this.store.updateTitle.bind(this.store)) })
+                        inputTitleElement = h('input', { class: 'edit', onchange: sp.selectTargetAttr('value', this.store.updateTitle.bind(this.store)) })
                     ])
                 }),
             ]),
