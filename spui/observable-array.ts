@@ -77,7 +77,9 @@ export class Filter<T> {
         this.filtered.applyChanges(() => {
             this.filtered.splice(0);
             const filteredValues = this.src.filter(this.predicate);
-            this.filtered.push(...filteredValues);
+            if (filteredValues.length) {
+                this.filtered.push(...filteredValues);
+            }
         });
     }
 

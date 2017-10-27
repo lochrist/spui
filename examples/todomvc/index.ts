@@ -12,12 +12,14 @@ class Todo {
 }
 class Store {
     todos: sp.ObservableArray<Todo>;
+    todoFilter: sp.Filter<Todo>;
     editing: sp.Stream = sp.createValueStream(null);
     todoCount: sp.Stream = sp.createValueStream(0);
     remaining: sp.Stream = sp.createValueStream(0);
-    showing: sp.Stream = sp.createValueStream('');
+    filterName: sp.Stream = sp.createValueStream('all');
     constructor() {
         this.todos = new sp.ObservableArray<Todo>();
+        this.todoFilter = new sp.Filter<Todo>(this.todos, this.isTodoFiltered.bind(this));
         this.todos.addListener(() => {
             this.updateState();
         });
@@ -63,18 +65,18 @@ class Store {
         this.editing(null);
     }
 
-    applyFilter() {
-        /*
-        state.showing = vnode.attrs.status || ''
-        state.remaining = state.todos.filter(function (todo) { return !todo.completed }).length
-        state.todosByStatus = state.todos.filter(function (todo) {
-            switch (state.showing) {
-                case '': return true
-                case 'active': return !todo.completed
-                case 'completed': return todo.completed
-            }
-        })
-        */
+    isTodoFiltered(todo: Todo) {
+        switch (this.filterName()) {
+            case 'active': return !todo.completed();
+            case 'completed': return todo.completed();
+            default: return true;
+        }
+    }
+
+    applyFilter(filterName: string) {
+        this.filterName(filterName);
+        this.todoFilter.applyFilter();
+        this.updateState();
     }
 
     updateState() {
@@ -126,7 +128,7 @@ class App {
             h('section', { id: 'main', style: { display: visibleIfTodo } }, [
                 this.toggleAllElement = h('input', {id: 'toggle-all', type: 'checkbox', checked: () => this.store.remaining() === 0, onclick: () => this.toggleAll() }) as HTMLInputElement,
                 h('label', { for: 'toggle-all', onclick: this.toggleAll.bind(this) }, 'Mark all as complete'),
-                sp.nodeList('ul', {id: 'todo-list'}, this.store.todos, (listElement, todo: Todo) => {
+                sp.nodeList('ul', {id: 'todo-list'}, this.store.todoFilter.filtered, (listElement, todo: Todo) => {
                     let inputTitleElement;
                     return h('li', { class: {completed: todo.completed,  editing: () => todo === this.store.editing() } }, [
                         h('div', {class: 'view'}, [
@@ -144,9 +146,9 @@ class App {
                     () => this.store.remaining() === 1 ? ' item left' : ' items left'
                 ]),
                 h('ul', {id: 'filters'}, [
-                    h('li', {}, h('a', { class: {selected: () => this.store.showing() === '' } }, 'All')),
-                    h('li', {}, h('a', { class: {selected: () => this.store.showing() === 'active' } }, 'Active')),
-                    h('li', {}, h('a', { class: {selected: () => this.store.showing() === 'completed' } }, 'Completed')),
+                    h('li', {}, h('a', { class: { selected: () => this.store.filterName() === 'all' }, onclick: () => this.store.applyFilter('all') }, 'All')),
+                    h('li', {}, h('a', { class: { selected: () => this.store.filterName() === 'active' }, onclick: () => this.store.applyFilter('active') }, 'Active')),
+                    h('li', {}, h('a', { class: { selected: () => this.store.filterName() === 'completed' }, onclick: () => this.store.applyFilter('completed') }, 'Completed')),
                 ]),
                 h('button', {id: 'clear-completed', onclick: () => this.store.clearCompleted() }, 'Clear completed')
             ])
