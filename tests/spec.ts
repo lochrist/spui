@@ -574,7 +574,25 @@ describe('dom generation', function () {
             const text = sp.createValueStream('before');
             let el;
             const root = createElement('div', {}, 
-                el = h('div', {disabled: isDisabled}, parent => text())
+                el = h('div', {disabled: isDisabled}, () => text())
+            );
+
+            expect(el.textContent).toEqual(text());
+            expect(el.attributes['disabled']).toBeDefined();
+
+            isDisabled(false);
+            expect(el.attributes['disabled']).toBeUndefined();
+
+            text(title);
+            expect(el.textContent).toEqual(title);
+        });
+
+        itt('children stream attr', function (title) {
+            const isDisabled = sp.createValueStream(true);
+            const text = sp.createValueStream('before');
+            let el;
+            const root = createElement('div', {},
+                el = h('div', { disabled: isDisabled }, text)
             );
 
             expect(el.textContent).toEqual(text());

@@ -2,14 +2,14 @@ import { isNode, isFunction, isString, isObject, expandValue, StringKeyMap} from
 import * as s from './stream';
 import {ObservableArray} from './observable-array';
 
-export type AttrGenerator = (HTMLElement) => Object;
-export type ElementGenerator = (HTMLElement) => HTMLElement;
-export type StringGenerator = (HTMLElement) => string;
+export type Attrs = StringKeyMap<any>;
+export type ElementGenerator = () => HTMLElement;
+export type StringGenerator = () => string;
 export type Child = string | HTMLElement | ElementGenerator | StringGenerator;
 export type Children = Array<Child> | Child;
 export type NodeCreator = (listRootNode: HTMLElement, model: any, indeX: number) => HTMLElement;
 
-export function h(tagName: string, attrs?: AttrGenerator | Object, children?: Children) {
+export function h(tagName: string, attrs?: Attrs, children?: Children) {
     const element = document.createElement(tagName);
     if (attrs) {
         setAttrs(element, attrs);
@@ -122,7 +122,7 @@ function appendChild(element: HTMLElement, child: Child) {
     if (isFunction(child)) {
         let resolvedChild: HTMLElement | string;
         const computation = s.computeStream(() => {
-            resolvedChild = child(element);
+            resolvedChild = child();
         });
 
         let childNode = isNode(resolvedChild) ? resolvedChild : document.createTextNode(resolvedChild);
@@ -245,7 +245,7 @@ export class SyncNodeList {
     }
 }
 
-export function nodeList(tagName: string, attrs: AttrGenerator | Object = null, models: ObservableArray<any>, nodeCreator: NodeCreator, key?: string) {
+export function nodeList(tagName: string, attrs: Attrs, models: ObservableArray<any>, nodeCreator: NodeCreator, key?: string) {
     const listRootNode = h(tagName, attrs);
     (parent as any)._nodeList = new SyncNodeList(listRootNode, models, nodeCreator, key);
     return  listRootNode;

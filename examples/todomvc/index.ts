@@ -133,8 +133,7 @@ class App {
                     return h('li', { class: {completed: todo.completed,  editing: () => todo === this.store.editing() } }, [
                         h('div', {class: 'view'}, [
                             h('input', {class: 'toggle', type: 'checkbox', checked: todo.completed, onclick: this.toggle.bind(this, todo) }),
-                            // TODO: update stream as children generator
-                            h('label', { disabled: todo.completed, ondblclick: () => this.edit(todo, inputTitleElement) }, () => todo.title()),
+                            h('label', { disabled: todo.completed, ondblclick: () => this.edit(todo, inputTitleElement) }, todo.title),
                             h('button', {class: 'destroy', onclick: () => this.store.destroy(todo) }),
                         ]),
                         inputTitleElement = h('input', { class: 'edit', onchange: sp.eventTarget('value', this.store.updateTitle.bind(this.store)) })
