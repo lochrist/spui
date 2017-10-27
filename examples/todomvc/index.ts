@@ -75,11 +75,11 @@ class Store {
 
     applyFilter(filterName: string) {
         this.filterName(filterName);
-        this.todoFilter.applyFilter();
         this.updateState();
     }
 
     updateState() {
+        this.todoFilter.applyFilter();
         if (this.todoCount() !== this.todos.length) {
             this.todoCount(this.todos.length);
         }

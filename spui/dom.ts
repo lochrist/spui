@@ -6,7 +6,7 @@ export type AttrGenerator = (HTMLElement) => Object;
 export type ElementGenerator = (HTMLElement) => HTMLElement;
 export type StringGenerator = (HTMLElement) => string;
 export type Child = string | HTMLElement | ElementGenerator | StringGenerator;
-export type Children = Array<any> | Child;
+export type Children = Array<Child> | Child;
 export type NodeCreator = (listRootNode: HTMLElement, model: any, indeX: number) => HTMLElement;
 
 export function h(tagName: string, attrs?: AttrGenerator | Object, children?: Children) {
@@ -249,6 +249,10 @@ export function nodeList(tagName: string, attrs: AttrGenerator | Object = null, 
     const listRootNode = h(tagName, attrs);
     (parent as any)._nodeList = new SyncNodeList(listRootNode, models, nodeCreator, key);
     return  listRootNode;
+}
+
+export function isNodeListElement(nodeListElement: HTMLElement) : boolean {
+    return !!((parent as any)._nodeList);
 }
 
 export function getNodeList(nodeListElement: HTMLElement) : SyncNodeList {

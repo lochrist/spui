@@ -104,12 +104,26 @@ describe('filter', function () {
         return value % 2 === 0;
     }
 
+    function all(value) { 
+        return true;
+    }
+
+    function none(value) {
+        return false;
+    }
+
     function isOdd(value) {
         return value % 2 === 1;
     }
 
     function divisibleBy3(value) {
         return value % 3 === 0;
+    }
+
+    function createThresholdPredicate(minValue, maxValue?) {
+        return function (value) {
+            return value >= minValue && (maxValue === undefined || value <= maxValue);
+        };
     }
 
     function createSrc(srcValues: any[]) {
@@ -239,16 +253,79 @@ describe('filter', function () {
         expectArrayEqual(filter.filtered, [6, 4, 2, -4, -2]);
     });
 
-    it('apply filter', function () {
+    it('apply filter with predicate at construction', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
-        filter.applyFilter();
         expectArrayEqual(filter.filtered, [2, 4, 6]);
 
-        filter.applyFilter(divisibleBy3);
+        let changes = filter.applyFilter();
+        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        expect(changes.length).toEqual(0);
+    });
+
+    it('apply filter 1', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, all);
+        expectArrayEqual(filter.filtered, [1, 2, 3, 4, 5, 6]);
+
+        let changes = filter.applyFilter(isEven);
+        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        // Need to remove 1, 3, 5
+        expect(changes.length).toEqual(3);
+
+        changes = filter.applyFilter(isOdd);
+        expectArrayEqual(filter.filtered, [1, 3, 5]);
+        // Add 1, remove 2, add 3, remove 4, add 5, remove 6
+        expect(changes.length).toEqual(6);
+    });
+
+    it('apply filter 2', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, none);
+        expectArrayEqual(filter.filtered, []);
+
+        let changes = filter.applyFilter(isEven);
+        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        // add 2, add, 4, add 6
+        expect(changes.length).toEqual(3);
+    });
+
+    it('apply filter 3', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, all);
+
+        let changes = filter.applyFilter(createThresholdPredicate(2));
+        expectArrayEqual(filter.filtered, [2, 3, 4, 5, 6]);
+        // Remove 1
+        expect(changes.length).toEqual(1);
+
+        changes = filter.applyFilter(createThresholdPredicate(3));
+        expectArrayEqual(filter.filtered, [3, 4, 5, 6]);
+        // Remove 2
+        expect(changes.length).toEqual(1);
+
+
+        changes = filter.applyFilter(createThresholdPredicate(1, 4));
+        expectArrayEqual(filter.filtered, [1, 2, 3, 4]);
+        // Add 1, add 2, remove 5, remove 6
+        expect(changes.length).toEqual(4);
+    });
+
+    it('apply filter reset', function () {
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, isEven);
+        expectArrayEqual(filter.filtered, [2, 4, 6]);
+
+        let changes = filter.applyFilter(null, true);
+        expect(changes.length).toEqual(2);
+        expectArrayEqual(filter.filtered, [2, 4, 6]);
+
+        changes = filter.applyFilter(divisibleBy3, true);
+        expect(changes.length).toEqual(2);
         expectArrayEqual(filter.filtered, [3, 6]);
 
-        filter.applyFilter(isOdd);
+        changes = filter.applyFilter(isOdd, true);
+        expect(changes.length).toEqual(2);
         expectArrayEqual(filter.filtered, [1, 3, 5]);
     });
 });

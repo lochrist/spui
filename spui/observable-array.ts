@@ -1,8 +1,9 @@
 import {remove} from './utils';
+export type Changes = Array<Array<any>>;
 export type ArrayListener = (op: string, args: any[], opReturnValue: any) => void;
 export class ObservableArray<T> extends Array<T> {
     listeners: ArrayListener[];
-    changes: any[];
+    changes: Changes;
     constructor() {
         super();
         this.listeners = [];
@@ -70,20 +71,53 @@ export class Filter<T> {
         this.src.addListener(this.srcChanged.bind(this));
     }
 
-    applyFilter(predicate?: FilterPredicate<T>) {
+    applyFilter(predicate: FilterPredicate<T> = null, reset: boolean = false) : Changes {
         if (predicate) {
             this.predicate = predicate;
         }
-        this.filtered.applyChanges(() => {
-            this.filtered.splice(0);
-            const filteredValues = this.src.filter(this.predicate);
-            if (filteredValues.length) {
-                this.filtered.push(...filteredValues);
+        return this.filtered.applyChanges(() => {
+            if (reset) {
+                // Reset filter completely:
+                this.filtered.splice(0);
+                const filteredValues = this.src.filter(this.predicate);
+                if (filteredValues.length) {
+                    this.filtered.push(...filteredValues);
+                }
+                return this.filtered.changes;
             }
+
+            // Apply only differences between 2 filter run:
+            let filterIndex = 0;
+            for (let srcIndex = 0; srcIndex < this.src.length; ++srcIndex) {
+                const srcValue = this.src[srcIndex];
+                if (this.predicate(srcValue)) {
+                    if (filterIndex < this.filtered.length) {
+                        if (this.filtered[filterIndex] !== srcValue) {
+                            this.filtered.splice(filterIndex, 0, srcValue);
+                        }
+                    } else {
+                        this.filtered.splice(filterIndex, 0, srcValue);
+                    }
+                    ++filterIndex;
+                } else {
+                    if (filterIndex < this.filtered.length) {
+                        if (this.filtered[filterIndex] === srcValue) {
+                            this.filtered.splice(filterIndex, 1);
+                        }
+                    }
+                }
+            }
+
+            // All the others elements are not needed anymore.
+            if (filterIndex < this.filtered.length) {
+                this.filtered.splice(filterIndex);
+            }
+
+            return this.filtered.changes;
         });
     }
 
-    srcChanged(op: string, args: any[], opReturnValue?: any) {
+    private srcChanged(op: string, args: any[], opReturnValue?: any) {
         switch (op) {
             case 'pop':
                 if (this.filtered.length && this.filtered[this.filtered.length - 1] === opReturnValue) {
