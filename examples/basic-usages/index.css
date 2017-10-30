@@ -1,18 +1,33 @@
 
+.child-container * {
+    display: block;
+}
+
+.strike {
+    text-decoration: line-through;
+}
+
+.color-display {
+    width: 200px;
+    height: 50px;
+    border: #555 solid;
+    margin: 2px;
+}
+
 /* Include the padding and border in an element's total width and height */
-#todoapp * {
+.todoapp * {
   box-sizing: border-box;
 }
 
 /* Remove margins and padding from the list */
-#todoapp ul {
+.todoapp ul {
   margin: 0;
   padding: 0;
   list-style-type: none;
 }
 
 /* Style the list items */
-#todoapp ul li {
+.todoapp ul li {
   cursor: pointer;
   position: relative;
   padding: 12px 8px 12px 40px;
@@ -28,24 +43,24 @@
 }
 
 /* Set all odd list items to a different color (zebra-stripes) */
-#todoapp ul li:nth-child(odd) {
+.todoapp ul li:nth-child(odd) {
   background: #f9f9f9;
 }
 
 /* Darker background-color on hover */
-#todoapp ul li:hover {
+.todoapp ul li:hover {
   background: #ddd;
 }
 
 /* When clicked on, add a background color and strike out text */
-#todoapp ul li.checked {
+.todoapp ul li.checked {
   background: #888;
   color: #fff;
   text-decoration: line-through;
 }
 
 /* Add a "checked" mark when clicked on */
-#todoapp ul li.checked1::before {
+.todoapp ul li.checked::before {
   content: '';
   position: absolute;
   border-color: #fff;
@@ -59,34 +74,34 @@
 }
 
 /* Style the close button */
-#todoapp .closeBtn {
+.todoapp .closeBtn {
   position: absolute;
   right: 0;
   top: 0;
   padding: 12px 16px 12px 16px;
 }
 
-#todoapp .closeBtn:hover {
+.todoapp .closeBtn:hover {
   background-color: #f44336;
   color: white;
 }
 
 /* Style the header */
-#todoapp .header {
+.todoapp .header {
   background-color: #0c82d1;
   padding: 30px 40px;
   text-align: center;
 }
 
 /* Clear floats after the header */
-#todoapp .header:after {
+.todoapp .header:after {
   content: "";
   display: table;
   clear: both;
 }
 
 /* Style the input */
-#todoapp input {
+.todoapp input {
   border: none;
   width: 75%;
   padding: 10px;
@@ -95,7 +110,7 @@
 }
 
 /* Style the "Add" button */
-#todoapp  .addBtn {
+.todoapp  .addBtn {
   padding: 10px;
   width: 25%;
   background: #d9d9d9;
@@ -107,7 +122,7 @@
   transition: 0.3s;
 }
 
-#todoapp .addBtn:hover {
+.todoapp .addBtn:hover {
   background-color: #bbb;
 }
 

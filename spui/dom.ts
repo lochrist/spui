@@ -1,4 +1,4 @@
-import { isNode, isFunction, isString, isObject, expandValue, StringKeyMap, Functor1P} from './utils';
+import { isNode, isFunction, isString, isObject, expandValue, StringKeyMap, Functor0P, Functor1P} from './utils';
 import * as s from './stream';
 import {ObservableArray} from './observable-array';
 
@@ -36,7 +36,7 @@ function setAttrs(element: HTMLElement, attr: Attrs) {
         // or if attrValue is a function: setup a computation
         if (isFunction(attrValue) || isObject(attrValue)) {
             // For all attributes resulting from a computation setup auto update:
-            const computation = s.computeStream(() => {
+            const computation = s.compute(() => {
                 setAttr(element, attrName, attrValue);
             });
 
@@ -115,9 +115,10 @@ function setChildren(element: HTMLElement, children: Children) {
 }
 
 function appendChild(element: HTMLElement, child: Child) {
+    if (!child) return;
     if (isFunction(child)) {
         let resolvedChild: HTMLElement | string;
-        const computation = s.computeStream(() => {
+        const computation = s.compute(() => {
             resolvedChild = child();
         });
 
@@ -258,4 +259,8 @@ export function selectTargetAttr(eventAttrName: string, functor: s.Stream | Func
     return function (event) {
         return functor(event.target[eventAttrName]);
     }
+}
+
+export function select(condition: any, ifTrue: Child, ifFalse?: Child) {
+    return expandValue(condition) ? expandValue(ifTrue) : (ifFalse && expandValue(ifFalse));
 }

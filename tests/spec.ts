@@ -74,7 +74,7 @@ describe('stream', function () {
             const vs1 = sp.valueStream(value1);
             const vs2 = sp.valueStream(value2);
 
-            const computation = sp.computeStream(() => {
+            const computation = sp.compute(() => {
                 return vs1() + vs2();
             });
 

@@ -85,16 +85,16 @@ function createComputation() : Computation {
     };
 }
 
-export function computeStream(functor: Functor0P, transform?: Functor1P) : Computation {
+export function compute(functor: Functor0P, transform?: Functor1P) : Computation {
     const computation = createComputation();
-    computation.computedStream(compute());
-    addTransform(computation.computedStream, compute);
+    computation.computedStream(_compute());
+    addTransform(computation.computedStream, _compute);
     if (transform) {
         addTransform(computation.computedStream, transform);
     }    
     return computation;
 
-    function compute() {
+    function _compute() {
         runningComputations.push(computation);
         let result, error;
         try {
@@ -107,6 +107,10 @@ export function computeStream(functor: Functor0P, transform?: Functor1P) : Compu
         if (error) throw error;
         return result;
     }
+}
+
+export function computeStream(functor: Functor0P, transform?: Functor1P): Stream {
+    return compute(functor, transform).computedStream;
 }
 
 export function eventStream(source: EventTarget | string, name: string, useCapture?) {
