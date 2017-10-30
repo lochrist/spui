@@ -4,11 +4,7 @@
   "version": "0.0.1",
   "description": "spui",
   "license": "MIT",
-  "author": {
-    "url": "https://github.com/lochrist",
-    "name": "Sebastien Phaneuf",
-    "email": "lochrist@yahoo.com"
-  },
+  "author": "Sebastien Phaneuf <lochrist@yahoo.com> (https://github.com/lochrist)",
   "scripts": {
     "build": "run-s clean build-ts bundle",
     "watch": "tsc && run-p \"build-ts -- -w\" \"bundle -- -w\"",
@@ -27,5 +23,25 @@
     "tslint": "^5.5.0",
     "tslint-eslint-rules": "^4.1.1",
     "typescript": "~2.4.2"
-  }
+  },
+  "main": "dits/spui.js",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lochrist/spui.git"
+  },
+  "keywords": [
+    "ui",
+    "dom",
+    "reactive"
+  ],
+  "bugs": {
+    "url": "https://github.com/lochrist/spui/issues"
+  },
+  "homepage": "https://github.com/lochrist/spui#readme"
 }
