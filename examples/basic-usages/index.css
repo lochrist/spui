@@ -8,6 +8,7 @@
 #todoapp ul {
   margin: 0;
   padding: 0;
+  list-style-type: none;
 }
 
 /* Style the list items */
@@ -44,7 +45,7 @@
 }
 
 /* Add a "checked" mark when clicked on */
-#todoapp ul li.checked::before {
+#todoapp ul li.checked1::before {
   content: '';
   position: absolute;
   border-color: #fff;
@@ -58,14 +59,14 @@
 }
 
 /* Style the close button */
-#todoapp .close {
+#todoapp .closeBtn {
   position: absolute;
   right: 0;
   top: 0;
   padding: 12px 16px 12px 16px;
 }
 
-#todoapp .close:hover {
+#todoapp .closeBtn:hover {
   background-color: #f44336;
   color: white;
 }
@@ -109,4 +110,22 @@
 
 #todoapp .addBtn:hover {
   background-color: #bbb;
+}
+
+
+@media (min-width: 1400px) {
+  .container {
+    width: 1370px;
+  }
+}
+@media (min-width: 1600px) {
+  .container {
+    width: 1570px;
+  }
+}
+
+@media (min-width: 1800px) {
+  .container {
+    width: 1770px;
+  }
 }

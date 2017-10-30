@@ -39,7 +39,7 @@ function md(mdText) {
     return (window as any).marked(mdText);
 }
 
-function createSnippet(f) {
+function createSnippet(f: Function) {
     return md('```lua\n' + f.toString() + '\n```');
 }
 

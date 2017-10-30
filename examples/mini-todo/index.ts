@@ -2,21 +2,23 @@ import * as sp from '../../spui/index';
 import * as utils from '../../spui/utils';
 const h = sp.h;
 
-function spuiTodo () {
+function todoExpress() {
     const newTitle = sp.valueStream('');
     const todos = new sp.ObservableArray();
-    const createTodo = (title: string, done = false) => {
-        return {
-            title: sp.valueStream(title),
-            done: sp.valueStream(done)
-        };
-    }
-    const addTodo = () => {
+
+    function addTodo() {
         if (newTitle()) {
             todos.push(createTodo(newTitle()));
             newTitle('');
         }
     };
+
+    function createTodo (title: string, done = false) {
+        return {
+            title: sp.valueStream(title),
+            done: sp.valueStream(done)
+        };
+    }
 
     todos.push(createTodo('hit the gym'));
     todos.push(createTodo('procrastinate', true));
@@ -39,4 +41,6 @@ function spuiTodo () {
     document.body.appendChild(view);
 }
 
-spuiTodo();
+console.log(todoExpress.toString());
+
+todoExpress();
