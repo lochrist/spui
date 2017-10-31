@@ -184,8 +184,14 @@ export class ElementListMapper {
                 const spliceStart = args[0] < 0 ? childNodes.length + args[0] : args[0];
                 const deleteCount = args.length > 1 ? args[1] : childNodes.length - spliceStart;
                 const deleteStop = spliceStart + deleteCount;
-                for (let i = spliceStart; i < deleteStop && childNodes[spliceStart]; i++) {
-                    this.listRootElement.removeChild(childNodes[spliceStart]);
+                // TODO: have a more flexible splice that doesn't ALWAYS create a toRemove array
+                // or keep the list of ordered nodes on the side?
+                const toRemove = [];
+                for (let i = spliceStart; i < deleteStop; i++) {
+                    toRemove.push(childNodes[i]);
+                }
+                for (let i = 0; i < toRemove.length; ++i) {
+                    this.listRootElement.removeChild(toRemove[i]);
                 }
 
                 if (args.length > 2) {

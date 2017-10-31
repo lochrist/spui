@@ -32,7 +32,7 @@ export class Store {
         this.data.applyChanges(() => {
             for (let i = 0; i < this.data.length; i += 10) {
                 // this.data[i] = Object.assign({}, this.data[i], { label: this.data[i].label + ' !!!' });
-                this.data[i].label(this.data[i].label() + ' !!!');
+                this.data.array[i].label(this.data.array[i].label() + ' !!!');
             }
         });
     }

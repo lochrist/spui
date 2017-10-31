@@ -304,11 +304,27 @@ describe('filter', function () {
         // Remove 2
         expect(changes.length).toEqual(1);
 
-
         changes = filter.applyFilter(createThresholdPredicate(1, 4));
         expectArrayObserverEqual(filter.filtered, [1, 2, 3, 4]);
         // Add 1, add 2, remove 5, remove 6
         expect(changes.length).toEqual(4);
+    });
+
+    it('apply filter 4', function () {
+        // TODO: implement more flexible filter that bunches multi splice
+	
+        const src = createSrc([1, 2, 3, 4, 5, 6]);
+        const filter = new sp.Filter(src, all);
+
+        let changes = filter.applyFilter(createThresholdPredicate(4));
+        expectArrayObserverEqual(filter.filtered, [4, 5, 6]);
+        // Remove 1, 2, 3
+        expect(changes.length).toEqual(3);
+
+        changes = filter.applyFilter(createThresholdPredicate(1, 3));
+        expectArrayObserverEqual(filter.filtered, [1, 2, 3]);
+        // add 1, 2, 3, remove 4, 5, 6
+        expect(changes.length).toEqual(6);
     });
 
     it('apply filter reset', function () {

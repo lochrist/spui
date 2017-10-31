@@ -42,7 +42,10 @@ function filterEx() {
         models.push(generateName());
     }
 
+    let nodeList : HTMLElement;
+
     function clear() {
+        /*
         models.applyChanges(() => {
             console.time('clear - splice');
             models.splice(0);
@@ -50,6 +53,31 @@ function filterEx() {
             console.time('clear - dom change');
         });
         console.timeEnd('clear - dom change');
+        */
+
+        console.time('clear');
+        
+        /*
+        let nodes = [];
+        for (let i = 0; i < 10000; ++i) {
+            nodes.push(nodeList.childNodes[i]);
+        }
+
+        let count = nodes.length;
+        for (let i = 0; i < count; ++i) {
+            nodeList.removeChild(nodes[i]);
+        }
+        */
+        
+        /*
+        var i = nodeList.childNodes.length;
+        while (i--) {
+            nodeList.removeChild(nodeList.lastChild);
+        }
+        */
+        models.splice(0);
+
+        console.timeEnd('clear');
     }
     const match = sp.valueStream('');
     const filter = new sp.Filter(models, (model: string) => {
@@ -61,7 +89,7 @@ function filterEx() {
         h('input', { oninput: sp.selectTargetAttr('value', match) }),
         h('button', { onclick: clear }, 'clear'),
         // elementList will update the <ul> element when new elements are added or removed.
-        sp.elementList('ul', { style: 'height: 300px;width: 300px;overflow: auto' }, filter.filtered, (listNode: HTMLElement, model: any, index: number) => {
+        nodeList = sp.elementList('ul', { style: 'height: 300px;width: 300px;overflow: auto' }, filter.filtered, (listNode: HTMLElement, model: any, index: number) => {
             return h('li', {}, model)
         })
     ]);
