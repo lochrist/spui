@@ -38,19 +38,17 @@ function generateName() {
 
 function filterEx() {
     const models = new sp.ArrayObserver<string>();
-    
-    
     for (let i = 0; i < 10000; ++i) {
         models.push(generateName());
     }
 
-    let count = 0;
-    for (let i = 0; i < models.length; ++i) {
-        if (generateName()) {
-            count++;
-        }
+    function clear() {
+        models.applyChanges(() => {
+            console.time('clear - splice');
+            models.splice(0);
+            console.timeEnd('clear - splice');
+        });
     }
-
     const match = sp.valueStream('');
     const filter = new sp.Filter(models, (model: string) => {
         return match() ? model.indexOf(match()) > -1 : true;
@@ -59,6 +57,7 @@ function filterEx() {
 
     return h('div', {}, [
         h('input', { oninput: sp.selectTargetAttr('value', match) }),
+        h('button', { onclick: clear }, 'clear'),
         // elementList will update the <ul> element when new elements are added or removed.
         sp.elementList('ul', { style: 'height: 300px;width: 300px;overflow: auto' }, filter.filtered, (listNode: HTMLElement, model: any, index: number) => {
             return h('li', {}, model)
