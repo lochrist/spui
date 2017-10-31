@@ -304,6 +304,16 @@ function hBooleanAutoUpdateEx() {
 }
 addExample('boolean changes auto-update', hBooleanAutoUpdateEx);
 
+function genericAttributesUpdate() {
+    const isChecked = sp.valueStream(true);
+    // Attributre with a boolean value, are setup specially in the DOM
+    return h('div', {}, [
+        h('input', { type: 'checkbox', checked: isChecked, onclick: sp.selectTargetAttr('checked', isChecked) }),
+        h('button', {title: () => isChecked() ? 'this is checked' : 'this is unchecked'}, 'Hover me!')
+    ]);
+}
+addExample('generic attributes update', genericAttributesUpdate);
+
 function inputValueChangeEx() {
     const model = sp.valueStream('this is my initial value');
     return h('div', {}, [

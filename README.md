@@ -121,6 +121,8 @@ More complete examples can be found below:
 
 # API
 
+This section covers all the public Api for SPUI. If it becomes out of date (how could that happen?) you can always look at the typescript declaration file [here]() to have access to the actual Api.
+
 ## DOM Manipulation
 
 These are all the functions that helps create an HTML view and manipulate DOM element. All of those functions can be used with the stream Api to benefits from the automatic DOM update. But you can use the hyperscript `h` function alone just to quickly create a new static HTML tree.
@@ -129,14 +131,149 @@ These are all the functions that helps create an HTML view and manipulate DOM el
 
 Argument    | Type                 | Required | Description
 ----------- | -------------------- | -------- | ---
-`tagname`   | `Element`            | Yes      | A DOM element that will be the parent node to the subtree
-`attrs`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
-`children`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
+`tagname`   | `string`            | Yes      | The HTML Element tagname (div, label, button, ...)
+`attrs`    | `Object` | No      | An Object where all keys are attributes or properties to specify  on the HTMLElement
+`children`    | `Array| string | HTMLElement | Function` | No      | Children to append to the HTMLElement
 **returns** |                      |          | Returns the newly created [HTMLElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement)
 
 #### Description
 
-pow this is a description
+`h` is the one stop shop to create a DOM view. This function has a lot of flexibility and intricacies like all hyperscript function can be. At its simplest, `h` can be seen as a blueprint on how the HTML would look:
+
+When you want to produce the following HTML:
+```html
+<div id='todoapp'>
+    <input type='text' placeholder='what is up?' input=myHandler>
+    <button click=clickHandler>Add</button>
+</div>
+```
+
+you use `h` like this:
+
+```javascript
+h('div[, {id: 'todoapp'}, [
+    h('input', {type: 'text', placeholder: 'what is up?', onpinput=myHandler),
+    h('button', {onclick: clickHandler}, 'Add')
+])
+```
+
+All the intricacies comes into how to specify the different element attributes and children. Keep in mind that the result of `h` is ALWAYS an HTMLElement. You can use that element directly and manipulate it as you see fit.
+
+#### General attributes
+
+Attributes are specified as a javascript object where each key must be a string. Each of these key will be used to set an attribute (or property) of the created HTMLElement. The value of each attribute can be either a `number`, `string` or `boolean` or a `function`. If you specify a `function`, SPUI will evaluate it to see if it is a Stream and if so, it will keep a binding on that Stream so when it changes, the DOM attributes will be updated as well. Here is an example of an element attribute:
+
+```javascript
+const isActivated = valueStream(true);
+h('button', {id: 'myButton' title: () => isActivated() ? 'Button is active' : 'Button is not active'}, 'Hover me!')
+```
+
+#### class attribute
+
+The `class` attribute can be specified in multiple ways: either as a `string`:
+
+```javascript
+const label = {info: true, danger: false};
+h('div', { class: 'alert alert-info' }, 'This is an alert label');
+```
+
+Or as an object where each key is a class to add if the corresponding value is truthy:
+
+```javascript
+const label = {info: true, danger: false};
+h('div', { class: { alert: true,
+                    'alert-info': label.info,
+                    'alert-danger': label.danger 
+        } 
+    }, 'This is an alert label');
+```
+
+You can speficy a stream either for the whole class value:
+
+```javascript
+const labelClass = valueStream('alert alert-info');
+h('div', { class: labelClass }, 'This is an alert label');
+
+// This will update the class attribute to danger!
+labelClass('alert alert-danger'); 
+```
+
+Or for any value of the `Object` specifying the class:
+```javascript
+const isInfo = valueStream(true);
+const isDanger = valueStream(false);
+h('div', { class: { alert: true,
+                    'alert-info': isInfo,
+                    'alert-danger': isDanger 
+        } 
+    }, 'This is an alert label');
+
+isInfo(false); // class becomes 'alert'
+isDanger(true); // class becomes 'alert alert-danger'
+```
+#### style attribute
+
+Style attribute is similar to `class` attribute in that you can spcify it with multiples ways using Stream (or not). It can specified as a `string`:
+
+```javascript
+h('div', { style: 'color: black; background-color: grey;padding: 10px;' }, 'dark label #1');
+```
+
+Or as an object where each key is a `style attribute`:
+
+```javascript
+h('div', { style: { color: 'grey', backgroundColor: 'black', padding: '10px' } }, 'darker label #2');
+```
+
+You can use Stream eitehr for the whole `style` value or for any `style` attribute:
+
+```javascript
+// Attribute with a boolean value, are setup specially in the DOM
+const colors = ['blue', 'green', 'red', 'black', 'pink'];
+const randomColor = () => randomElement(colors);
+const color1 = valueStream(randomColor());
+const color2 = valueStream(randomColor());
+h('div', { class: 'child-container' }, [
+    h('button', { onclick: () => {
+            color1(randomColor());
+            color2(randomColor());
+        } }, 'random color'),
+    // This is a computed whole style value:
+    h('div', { class: 'color-display', style: () => 'background-color: ' + color1() }),
+    // pass the Stream directly for the backgroundColor
+    h('div', { class: 'color-display', style: { backgroundColor: color2 } })
+]);
+```
+
+#### boolean attributes
+
+Boolean attributes are special in HTML. You want the attribute in the DOM when it needs to be active and you want it removed when its value is `false`. 
+
+```HTML
+<button>Enabled</button>
+<button disabled>Disabled</button>
+```
+
+SPUI will ensure all boolean attributes are properly setup (or remove) from the DOM. If you use a Stream to specify the value of the attribute this makes it easy to have it be updated automatically:
+
+```javascript
+// Attribute with a boolean value, are setup specially in the DOM
+const readonlyInput = valueStream(true);
+const disabledInput = valueStream(true);
+
+h('div', { class: 'child-container' }, [
+    // Toggle if `i2` is disabled or not
+    h('button', { onclick: () => disabledInput(!disabledInput()) }, 'Toggle'),
+    h('input', { id: 'i1', readonly: readonlyInput }),
+    h('input', { id: 'i2', disabled: disabledInput }),
+]);
+
+// Makes `i1` input writable
+readonlyInput(true);
+```
+
+#### children
+
 
 ---
 
