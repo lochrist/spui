@@ -325,7 +325,7 @@ function childrenValueChangeEx() {
 addExample('children value change', childrenValueChangeEx);
 
 function elementListEx () {
-    const models = new sp.ObservableArray<any>();    
+    const models = new sp.ArrayObserver<any>();
     let count = 0;
     models.push(sp.valueStream(count++));
     models.push(sp.valueStream(count++));
@@ -333,7 +333,7 @@ function elementListEx () {
     models.push(sp.valueStream(count++));
     return h('div', {}, [
         h('button', { onclick: () => models.push(sp.valueStream(count++)) }, 'Add'),
-        h('button', { onclick: () => models.splice(randomIndex(models), 1) }, 'Remove random'),
+        h('button', { onclick: () => models.splice(randomIndex(models.array), 1) }, 'Remove random'),
         // elementList will update the <ul> element when new elements are added or removed.
         sp.elementList('ul', {}, models, (listNode: HTMLElement, model: any, index: number) => {
             return h('li', {}, model)
@@ -368,8 +368,8 @@ function generateName() {
 }
 
 function filterEx() {
-    const models = new sp.ObservableArray<string>();
-    for (let i = 0; i < 10; ++i) models.push(generateName());
+    const models = new sp.ArrayObserver<string>();
+    for (let i = 0; i < 1000; ++i) models.push(generateName());
     const match = sp.valueStream('');
     const filter = new sp.Filter(models, (model: string) => {
         return match() ? model.indexOf(match()) > -1 : true;
@@ -393,7 +393,7 @@ function todoExpressEx() {
     const newTitle = sp.valueStream('');
 
     // This will store all our todos and ensure the DOM todo list is kept in sync
-    const todos = new sp.ObservableArray();
+    const todos = new sp.ArrayObserver();
 
     function addTodo() {
         if (newTitle()) {
@@ -435,7 +435,7 @@ function todoExpressEx() {
             }, [
                     todo.title,
                     // Removoing the todo from the model will update the DOM List.
-                    h('span', { class: 'closeBtn', onclick: () => utils.remove(todos, todo) }, 'x')
+                    h('span', { class: 'closeBtn', onclick: () => todos.remove(todo) }, 'x')
                 ]);
         })
     ]);

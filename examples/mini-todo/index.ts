@@ -4,7 +4,7 @@ const h = sp.h;
 
 function todoExpress() {
     const newTitle = sp.valueStream('');
-    const todos = new sp.ObservableArray();
+    const todos = new sp.ArrayObserver();
 
     function addTodo() {
         if (newTitle()) {
@@ -33,7 +33,7 @@ function todoExpress() {
         sp.elementList('ul', {}, todos, (listNode: HTMLElement, todo: any, index: number) => {
             return h('li', { class: { checked: todo.done }, onclick: () => todo.done(!todo.done()) }, [
                 todo.title,
-                h('span', {class: 'close', onclick: () => utils.remove(todos, todo)}, 'x')
+                h('span', {class: 'close', onclick: () => todos.remove(todo)}, 'x')
             ]);
         })
     ]);

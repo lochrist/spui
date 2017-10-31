@@ -1,13 +1,67 @@
 import {remove} from './utils';
 export type Changes = Array<Array<any>>;
 export type ArrayListener = (op: string, args: any[], opReturnValue: any) => void;
-export class ObservableArray<T> extends Array<T> {
+
+const mutables = 'pop push reverse splice shift sort unshift'.split(' ');
+export class ArrayObserver<T> {
+    array: T[];
     listeners: ArrayListener[];
     changes: Changes;
-    constructor() {
-        super();
+    constructor(array?: T[]) {
+        this.array = array || [];
         this.listeners = [];
         this.changes = null;
+    }
+
+    get length () {
+        return this.array.length;
+    }
+
+    push(...args) {
+        const retValue = this.array.push.apply(this.array, args);
+        this.logChange('push', retValue, args);
+        return retValue;
+    }
+
+    pop(...args) {
+        const retValue = this.array.pop.apply(this.array, args);
+        this.logChange('pop', retValue, args);
+        return retValue;
+    }
+
+    reverse(...args) {
+        const retValue = this.array.reverse.apply(this.array, args);
+        this.logChange('reverse', retValue, args);
+        return retValue;
+    }
+
+    shift(...args) {
+        const retValue = this.array.shift.apply(this.array, args);
+        this.logChange('shift', retValue, args);
+        return retValue;
+    }
+
+    splice(...args) {
+        const retValue = this.array.splice.apply(this.array, args);
+        this.logChange('splice', retValue, args);
+        return retValue;
+    }
+
+    sort(...args) {
+        const retValue = this.array.sort.apply(this.array, args);
+        this.logChange('sort', retValue, args);
+        return retValue;
+    }
+
+    unshift(...args) {
+        const retValue = this.array.unshift.apply(this.array, args);
+        this.logChange('unshift', retValue, args);
+        return retValue;
+    }
+
+    remove(value: T) {
+        const index = this.array.indexOf(value);
+        this.splice(index, 1);
     }
 
     applyChanges(changeFunctor: () => any) {
@@ -20,6 +74,7 @@ export class ObservableArray<T> extends Array<T> {
             throw e;
         }
         if (this.changes) {
+            console.log('emit changes: ', this.changes.length);
             this.emit('changes', this.changes);
         }
         this.changes = null;
@@ -34,65 +89,60 @@ export class ObservableArray<T> extends Array<T> {
         return remove(this.listeners, callback);
     }
 
-    emit (op: string, args: any[], opReturnValue?: any) {
+    logChange(method, returnValue, args) {
+        if (this.changes === null) {
+            this.emit(method, args, returnValue);
+        } else {
+            this.changes.push([method, args, returnValue]);
+        }
+    }
+
+    emit(op: string, args: any[], opReturnValue?: any) {
         for (let i = 0; i < this.listeners.length; ++i) {
             this.listeners[i](op, args, opReturnValue);
         }
     }
 }
 
-const mutables = 'pop push reverse splice shift sort unshift'.split(' ');
-for (const method of mutables) {
-    const originalMethod = Array.prototype[method];
-    ObservableArray.prototype[method] = function (...args) {
-        const returnValue = originalMethod.apply(this, args);
-        if (this.changes === null) {
-            this.emit(method, args, returnValue);
-        } else {
-            this.changes.push([method, args, returnValue]);
-        }
-        return returnValue;
-    };
-}
-
 export type FilterPredicate<T> = (value: T) => any;
 export class Filter<T> {
-    src: ObservableArray<T>;
-    filtered: ObservableArray<T>;
+    src: ArrayObserver<T>;
+    filtered: ArrayObserver<T>;
     predicate: FilterPredicate<T>;
-    constructor(src: ObservableArray<T>, predicate: FilterPredicate<T>) {
+    constructor(src: ArrayObserver<T>, predicate: FilterPredicate<T>) {
         this.src = src;
-        this.filtered = new ObservableArray<T>();
+        this.filtered = new ArrayObserver();
         this.predicate = predicate;
 
-        const srcFiltered = this.src.filter(this.predicate);
+        const srcFiltered = this.src.array.filter(this.predicate);
         this.filtered.push(...srcFiltered);
 
         this.src.addListener(this.srcChanged.bind(this));
     }
 
-    applyFilter(predicate: FilterPredicate<T> = null, reset: boolean = false) : Changes {
+    applyFilter(predicate: FilterPredicate<T> = null, reset: boolean = false): Changes {
         if (predicate) {
             this.predicate = predicate;
         }
-        return this.filtered.applyChanges(() => {
+        const changes = this.filtered.applyChanges(() => {
             if (reset) {
                 // Reset filter completely:
                 this.filtered.splice(0);
-                const filteredValues = this.src.filter(this.predicate);
+                const filteredValues = this.src.array.filter(this.predicate);
                 if (filteredValues.length) {
                     this.filtered.push(...filteredValues);
                 }
                 return this.filtered.changes;
             }
 
+            console.time('applyFilter');
             // Apply only differences between 2 filter run:
             let filterIndex = 0;
             for (let srcIndex = 0; srcIndex < this.src.length; ++srcIndex) {
-                const srcValue = this.src[srcIndex];
+                const srcValue = this.src.array[srcIndex];
                 if (this.predicate(srcValue)) {
                     if (filterIndex < this.filtered.length) {
-                        if (this.filtered[filterIndex] !== srcValue) {
+                        if (this.filtered.array[filterIndex] !== srcValue) {
                             this.filtered.splice(filterIndex, 0, srcValue);
                         }
                     } else {
@@ -101,7 +151,7 @@ export class Filter<T> {
                     ++filterIndex;
                 } else {
                     if (filterIndex < this.filtered.length) {
-                        if (this.filtered[filterIndex] === srcValue) {
+                        if (this.filtered.array[filterIndex] === srcValue) {
                             this.filtered.splice(filterIndex, 1);
                         }
                     }
@@ -112,15 +162,20 @@ export class Filter<T> {
             if (filterIndex < this.filtered.length) {
                 this.filtered.splice(filterIndex);
             }
+            console.timeEnd('applyFilter');
+
+            console.log('remaing: ', this.filtered.length);
 
             return this.filtered.changes;
         });
+        return changes;
     }
+
 
     private srcChanged(op: string, args: any[], opReturnValue?: any) {
         switch (op) {
             case 'pop':
-                if (this.filtered.length && this.filtered[this.filtered.length - 1] === opReturnValue) {
+                if (this.filtered.length && this.filtered.array[this.filtered.length - 1] === opReturnValue) {
                     this.filtered.pop();
                 }
                 break;
@@ -153,7 +208,7 @@ export class Filter<T> {
                 // Find the insertion point from the start in case not all elements are unique.
                 let filteredSpliceStart = 0;
                 for (let i = 0; i < srcSpliceStart; ++i) {
-                    if (this.predicate(this.src[i])) {
+                    if (this.predicate(this.src.array[i])) {
                         ++filteredSpliceStart;
                     }
                 }
@@ -169,7 +224,7 @@ export class Filter<T> {
                 }
                 break;
             case 'shift':
-                if (this.filtered.length && this.filtered[0] === opReturnValue) {
+                if (this.filtered.length && this.filtered.array[0] === opReturnValue) {
                     this.filtered.shift();
                 }
                 break;

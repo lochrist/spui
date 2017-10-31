@@ -11,14 +11,14 @@ class Todo {
     }
 }
 class Store {
-    todos: sp.ObservableArray<Todo>;
+    todos: sp.ArrayObserver<Todo>;
     todoFilter: sp.Filter<Todo>;
     editing: sp.Stream = sp.valueStream(null);
     todoCount: sp.Stream = sp.valueStream(0);
     remaining: sp.Stream = sp.valueStream(0);
     filterName: sp.Stream = sp.valueStream('all');
     constructor() {
-        this.todos = new sp.ObservableArray<Todo>();
+        this.todos = new sp.ArrayObserver<Todo>();
         this.todoFilter = new sp.Filter<Todo>(this.todos, this.isTodoFiltered.bind(this));
         this.todos.addListener(() => {
             this.updateState();
@@ -29,7 +29,7 @@ class Store {
     }
     setAllCompleted(completed: boolean) {
         for (let i = 0; i < this.todos.length; ++i) {
-            this.todos[i].completed(completed);
+            this.todos.array[i].completed(completed);
         }
         this.updateState();
     }
@@ -38,7 +38,7 @@ class Store {
         this.updateState();
     }
     destroy(todo: Todo) {
-        utils.remove(this.todos, todo);
+        this.todos.remove(todo);
     }
     clearCompleted() {
         this.todos.applyChanges(() => {
@@ -83,7 +83,7 @@ class Store {
         if (this.todoCount() !== this.todos.length) {
             this.todoCount(this.todos.length);
         }
-        const remaining = this.todos.filter(todo => !todo.completed()).length;
+        const remaining = this.todos.array.filter(todo => !todo.completed()).length;
         if (remaining !== this.remaining()) {
             this.remaining(remaining);
         }

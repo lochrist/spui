@@ -126,8 +126,8 @@ describe('filter', function () {
         };
     }
 
-    function createSrc(srcValues: any[]) {
-        const src = new sp.ObservableArray<any>();
+    function createSrc(srcValues: any[]) : sp.ArrayObserver<any> {
+        const src = new sp.ArrayObserver<any>();
         src.push(...srcValues);
         return src;
     }
@@ -144,8 +144,8 @@ describe('filter', function () {
         return true;
     }
 
-    function expectArrayEqual(a1, a2) {
-        expect(arrayEqual(a1, a2)).toEqual(true);
+    function expectArrayObserverEqual(a1: sp.ArrayObserver<any>, a2) {
+        expect(arrayEqual(a1.array, a2)).toEqual(true);
     }
 
     it('create filter', function () {
@@ -153,91 +153,91 @@ describe('filter', function () {
         const filter = new sp.Filter(src, isEven);
         expect(filter.src).toEqual(src);
         expect(filter.predicate).toEqual(isEven);
-        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 4, 6]);
     });
 
     it('pop', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
         src.pop();
-        expectArrayEqual(filter.filtered, [2, 4]);
+        expectArrayObserverEqual(filter.filtered, [2, 4]);
         src.pop();
-        expectArrayEqual(filter.filtered, [2, 4]);
+        expectArrayObserverEqual(filter.filtered, [2, 4]);
     });
 
     it('push', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
         src.push(7, 8, 9, 10);
-        expectArrayEqual(filter.filtered, [2, 4, 6, 8, 10]);
+        expectArrayObserverEqual(filter.filtered, [2, 4, 6, 8, 10]);
     });
 
     it('reverse', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
         src.reverse();
-        expectArrayEqual(filter.filtered, [6, 4, 2]);
+        expectArrayObserverEqual(filter.filtered, [6, 4, 2]);
     });
 
     it('shift', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
         src.shift();
-        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 4, 6]);
         src.shift();
-        expectArrayEqual(filter.filtered, [4, 6]);
+        expectArrayObserverEqual(filter.filtered, [4, 6]);
     });
 
     it('sort', function () {
         const src = createSrc([3, 2, 1, 6, 5, 4]);
         const filter = new sp.Filter(src, isEven);
-        expectArrayEqual(filter.filtered, [2, 6, 4]);
+        expectArrayObserverEqual(filter.filtered, [2, 6, 4]);
         src.sort();
-        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 4, 6]);
     });
 
     it('splice 1', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
         src.splice(3);
-        expectArrayEqual(filter.filtered, [2]);
+        expectArrayObserverEqual(filter.filtered, [2]);
     });
 
     it('splice 2', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
         src.splice(3, 2);
-        expectArrayEqual(filter.filtered, [2, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 6]);
     });
 
     it('splice 3', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
         src.splice(-3, 2);
-        expectArrayEqual(filter.filtered, [2, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 6]);
     });
 
     it('splice 4', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
         src.splice(3, 0, 11, 22, 33, 44);
-        expectArrayEqual(filter.filtered, [2, 22, 44, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 22, 44, 4, 6]);
     });
 
     it('splice 5', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
         src.splice(-3, 1, 11, 22, 33, 44);
-        expectArrayEqual(filter.filtered, [2, 22, 44, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 22, 44, 6]);
     });
 
     it('unshift', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
         src.unshift();
-        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 4, 6]);
         src.unshift(11, 22, 33, 44);
-        expectArrayEqual(filter.filtered, [22, 44, 2, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [22, 44, 2, 4, 6]);
     });
 
     it('changes', function () {
@@ -250,31 +250,31 @@ describe('filter', function () {
             src.reverse();
         });
 
-        expectArrayEqual(filter.filtered, [6, 4, 2, -4, -2]);
+        expectArrayObserverEqual(filter.filtered, [6, 4, 2, -4, -2]);
     });
 
     it('apply filter with predicate at construction', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
-        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 4, 6]);
 
         let changes = filter.applyFilter();
-        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 4, 6]);
         expect(changes.length).toEqual(0);
     });
 
     it('apply filter 1', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, all);
-        expectArrayEqual(filter.filtered, [1, 2, 3, 4, 5, 6]);
+        expectArrayObserverEqual(filter.filtered, [1, 2, 3, 4, 5, 6]);
 
         let changes = filter.applyFilter(isEven);
-        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 4, 6]);
         // Need to remove 1, 3, 5
         expect(changes.length).toEqual(3);
 
         changes = filter.applyFilter(isOdd);
-        expectArrayEqual(filter.filtered, [1, 3, 5]);
+        expectArrayObserverEqual(filter.filtered, [1, 3, 5]);
         // Add 1, remove 2, add 3, remove 4, add 5, remove 6
         expect(changes.length).toEqual(6);
     });
@@ -282,10 +282,10 @@ describe('filter', function () {
     it('apply filter 2', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, none);
-        expectArrayEqual(filter.filtered, []);
+        expectArrayObserverEqual(filter.filtered, []);
 
         let changes = filter.applyFilter(isEven);
-        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 4, 6]);
         // add 2, add, 4, add 6
         expect(changes.length).toEqual(3);
     });
@@ -295,18 +295,18 @@ describe('filter', function () {
         const filter = new sp.Filter(src, all);
 
         let changes = filter.applyFilter(createThresholdPredicate(2));
-        expectArrayEqual(filter.filtered, [2, 3, 4, 5, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 3, 4, 5, 6]);
         // Remove 1
         expect(changes.length).toEqual(1);
 
         changes = filter.applyFilter(createThresholdPredicate(3));
-        expectArrayEqual(filter.filtered, [3, 4, 5, 6]);
+        expectArrayObserverEqual(filter.filtered, [3, 4, 5, 6]);
         // Remove 2
         expect(changes.length).toEqual(1);
 
 
         changes = filter.applyFilter(createThresholdPredicate(1, 4));
-        expectArrayEqual(filter.filtered, [1, 2, 3, 4]);
+        expectArrayObserverEqual(filter.filtered, [1, 2, 3, 4]);
         // Add 1, add 2, remove 5, remove 6
         expect(changes.length).toEqual(4);
     });
@@ -314,19 +314,19 @@ describe('filter', function () {
     it('apply filter reset', function () {
         const src = createSrc([1, 2, 3, 4, 5, 6]);
         const filter = new sp.Filter(src, isEven);
-        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 4, 6]);
 
         let changes = filter.applyFilter(null, true);
         expect(changes.length).toEqual(2);
-        expectArrayEqual(filter.filtered, [2, 4, 6]);
+        expectArrayObserverEqual(filter.filtered, [2, 4, 6]);
 
         changes = filter.applyFilter(divisibleBy3, true);
         expect(changes.length).toEqual(2);
-        expectArrayEqual(filter.filtered, [3, 6]);
+        expectArrayObserverEqual(filter.filtered, [3, 6]);
 
         changes = filter.applyFilter(isOdd, true);
         expect(changes.length).toEqual(2);
-        expectArrayEqual(filter.filtered, [1, 3, 5]);
+        expectArrayObserverEqual(filter.filtered, [1, 3, 5]);
     });
 });
 
@@ -608,19 +608,19 @@ describe('dom generation', function () {
 
     interface NodeListData {
         nodeList: HTMLElement,
-        models: sp.ObservableArray<any>
+        models: sp.ArrayObserver<any>
     }
     function validateDomList(nld: NodeListData) {
         expect(nld.models.length).toEqual(nld.nodeList.childNodes.length);
         for (let i = 0; i < nld.models.length; ++i) {
-            const model = nld.models[i];
+            const model = nld.models.array[i];
             const node = nld.nodeList.childNodes[i];
             expect(model.domId).toEqual(node.attributes['id'].value);
         }
     }
 
     function setupNodeList(title: string, noIndexCheck = false): NodeListData {
-        const models = new sp.ObservableArray<any>();
+        const models = new sp.ArrayObserver<any>();
         const id = getId();
         const attrs = {
             id: id
@@ -630,7 +630,7 @@ describe('dom generation', function () {
             title + ' : ' + id,
             domList = sp.elementList('ul', attrs, models, (listNode, model, index) => {
                 if (!noIndexCheck) {
-                    const actualModelIndex = models.indexOf(model);
+                    const actualModelIndex = models.array.indexOf(model);
                     expect(actualModelIndex).toEqual(index);
                 }
                 return h('div', { id: model.domId, class: model.class }, model.text);
@@ -728,10 +728,10 @@ describe('dom generation', function () {
         itt('sort', function (title) {
             const d = setupNodeList(title);
             d.models.push(createModel(), createModel(), createModel(), createModel());
-            d.models[0].order = 10;
-            d.models[1].order = 5;
-            d.models[2].order = 20;
-            d.models[3].order = 15;
+            d.models.array[0].order = 10;
+            d.models.array[1].order = 5;
+            d.models.array[2].order = 20;
+            d.models.array[3].order = 15;
 
             d.models.sort((a, b) => a.order - b.order);
             validateDomList(d);
@@ -767,8 +767,8 @@ describe('dom generation', function () {
             const d = setupNodeList(title, true);
             d.models.applyChanges(() => {
                 d.models.push(createModel(), createModel(), createModel(), createModel());
-                const a = d.models[1];
-                const b = d.models[2];
+                const a = d.models.array[1];
+                const b = d.models.array[2];
                 d.models.splice(1, 1, b);
                 d.models.splice(2, 1, a);
             });
@@ -790,7 +790,7 @@ describe('dom generation', function () {
             d.models.push(createModel());
             validateDomList(d);
 
-            d.models[0].class('new-class');
+            d.models.array[0].class('new-class');
             expect(d.nodeList.children[0].className).toEqual('new-class');
         });
 
@@ -799,7 +799,7 @@ describe('dom generation', function () {
             d.models.push(createModel());
             validateDomList(d);
 
-            d.models[0].textData('new-text');
+            d.models.array[0].textData('new-text');
             expect(d.nodeList.children[0].textContent).toEqual('new-text');
         });
     });

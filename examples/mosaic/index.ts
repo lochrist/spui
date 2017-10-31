@@ -6,7 +6,7 @@ interface Model {
     pos: string,
     class: sp.Stream
 }
-const mosaicModels = new sp.ObservableArray<Model>();
+const mosaicModels = new sp.ArrayObserver<Model>();
 
 function createMosaic() {
     return h('div', { id: 'root' }, sp.elementList('div', { class: 'container' }, mosaicModels, (element, model) => {
@@ -24,7 +24,7 @@ function initModels() {
 }
 
 function fadeOut() {
-    mosaicModels.forEach(model => model.class('slice exit'));
+    mosaicModels.array.forEach(model => model.class('slice exit'));
     setTimeout(fadeIn, 1000);
 }
 

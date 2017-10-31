@@ -106,7 +106,7 @@ export class App {
 
             if (selectedId !== undefined) {
                 const nodeList = getElementList(this.tableEl);
-                const selectedModel = this.store.data.find(model => model.id === selectedId);
+                const selectedModel = this.store.data.array.find(model => model.id === selectedId);
                 this.selectedElement = nodeList.modelToElement.get(selectedModel);
                 this.selectedElement.className = 'danger';
             }
@@ -118,6 +118,7 @@ export class App {
         this.store.add();
         stopMeasure();
     }
+
     remove(id) {
         startMeasure('remove');
         this.store.delete(id);
@@ -140,9 +141,7 @@ export class App {
     }
     runLots() {
         startMeasure('runLots');
-        console.profile('runLots');
         this.store.runLots();
-        console.profileEnd();
         stopMeasure();
     }
     clear() {

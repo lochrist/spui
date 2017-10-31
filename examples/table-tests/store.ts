@@ -9,11 +9,11 @@ const colours = ['red', 'yellow', 'blue', 'green', 'pink', 'brown', 'purple', 'b
 const nouns = ['table', 'chair', 'house', 'bbq', 'desk', 'car', 'pony', 'cookie', 'sandwich', 'burger', 'pizza', 'mouse', 'keyboard'];
 export class Store {
     backup: any[];
-    data: sp.ObservableArray<any>;
+    data: sp.ArrayObserver<any>;
     selected: sp.Stream;
     id: number;
     constructor() {
-        this.data = new sp.ObservableArray<any>();
+        this.data = new sp.ArrayObserver<any>();
         this.selected = sp.valueStream();
         this.id = 1;
     }
@@ -37,7 +37,7 @@ export class Store {
         });
     }
     delete(id) {
-        const idx = this.data.findIndex(d => d.id == id);
+        const idx = this.data.array.findIndex(d => d.id == id);
         this.data.splice(idx, 1);
         return this;
     }

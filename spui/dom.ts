@@ -1,6 +1,6 @@
 import { isNode, isFunction, isString, isObject, expandValue, StringKeyMap, Functor0P, Functor1P} from './utils';
 import * as s from './stream';
-import {ObservableArray} from './observable-array';
+import {ArrayObserver} from './observable-array';
 
 export type Attrs = StringKeyMap<any>;
 export type ElementGenerator = () => HTMLElement;
@@ -141,22 +141,22 @@ function appendChild(element: HTMLElement, child: Child) {
 }
 
 export class ElementListMapper {
-    models: ObservableArray<any>;
+    modelsObs: ArrayObserver<any>;
     listRootElement: HTMLElement;
     elementCreator: ModelElementCreator;
     key: string;
     modelToElement: Map<any, HTMLElement>;
-    constructor(listRootElement: HTMLElement, models: ObservableArray<any>, elementCreator: ModelElementCreator, key?: string) {
+    constructor(listRootElement: HTMLElement, modelsObs: ArrayObserver<any>, elementCreator: ModelElementCreator, key?: string) {
         this.listRootElement = listRootElement;
-        this.models = models;
+        this.modelsObs = modelsObs;
         this.elementCreator = elementCreator;
         // TODO: What to do with key?
         this.key = key;
         this.modelToElement = new Map<any, HTMLElement>();
-        models.addListener(this.onModelChange.bind(this));
+        modelsObs.addListener(this.onModelChange.bind(this));
 
-        if (this.models.length) {
-            const nodes = this.createElements(this.models, 0);
+        if (this.modelsObs.length) {
+            const nodes = this.createElements(this.modelsObs.array, 0);
             this.listRootElement.appendChild(nodes);
         }
     }
@@ -167,7 +167,7 @@ export class ElementListMapper {
                 this.listRootElement.removeChild(this.listRootElement.lastChild);
                 break;
             case 'push': {
-                const nodes = this.createElements(args, this.models.length - args.length);
+                const nodes = this.createElements(args, this.modelsObs.length - args.length);
                 this.listRootElement.appendChild(nodes);
                 break;
             }
@@ -198,8 +198,8 @@ export class ElementListMapper {
                 break;
             case 'sort': {
                 const frag = new DocumentFragment();
-                for (let i = 0; i < this.models.length; ++i) {
-                    const node = this.modelToElement.get(this.models[i]);
+                for (let i = 0; i < this.modelsObs.length; ++i) {
+                    const node = this.modelToElement.get(this.modelsObs.array[i]);
                     this.listRootElement.removeChild(node);
                     frag.appendChild(node);
                 }
@@ -212,10 +212,12 @@ export class ElementListMapper {
                 break;
             }
             case 'changes': {
+                console.time('apply dom changes');
                 const changes = args;
                 for (let i = 0; i < changes.length; ++i) {
                     this.onModelChange(changes[i][0], changes[i][1]);
                 }
+                console.timeEnd('apply dom changes');
                 break;
             }
         }
@@ -241,7 +243,7 @@ export class ElementListMapper {
     }
 }
 
-export function elementList(tagName: string, attrs: Attrs, models: ObservableArray<any>, nodeCreator: ModelElementCreator, key?: string) {
+export function elementList(tagName: string, attrs: Attrs, models: ArrayObserver<any>, nodeCreator: ModelElementCreator, key?: string) {
     const listRootElement = h(tagName, attrs);
     (parent as any)._elementList = new ElementListMapper(listRootElement, models, nodeCreator, key);
     return  listRootElement;
