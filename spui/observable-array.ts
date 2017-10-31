@@ -133,7 +133,7 @@ export class Filter<T> {
                     this.filtered.push(...filteredValues);
                 }
                 return this.filtered.changes;
-            }
+            } 
 
             console.time('applyFilter');
             // Apply only differences between 2 filter run:
