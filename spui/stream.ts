@@ -58,9 +58,8 @@ export function addListener(stream: Stream, listener: Functor1P) : Functor0P {
     return () => removeListener(stream, listener);
 }
 
-export function removeListener(valueStream: Stream, listener: Functor1P) : Stream {
+export function removeListener(valueStream: Stream, listener: Functor1P) : void {
     remove(valueStream._listeners, listener);
-    return valueStream;
 }
 
 export function addTransform(valueStream: Stream, transform: Functor1P) {

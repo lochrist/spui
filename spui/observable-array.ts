@@ -81,7 +81,8 @@ export class ObservableArray<T> {
     }
 
     addListener(callback: ArrayListener) {
-        return this.listeners.push(callback);
+        this.listeners.push(callback);
+        return () => this.removeListener(callback);
     }
 
     removeListener(callback: ArrayListener) {
