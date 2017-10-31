@@ -244,7 +244,7 @@ export class Filter<T> {
             case 'changes': {
                 const changes = args;
                 for (let i = 0; i < changes.length; ++i) {
-                    this.srcChanged(changes[i][0], changes[i][1]);
+                    this.srcChanged.apply(this, changes[i]);
                 }
                 break;
             }
