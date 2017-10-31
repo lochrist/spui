@@ -212,12 +212,10 @@ export class ElementListMapper {
                 break;
             }
             case 'changes': {
-                console.time('apply dom changes');
                 const changes = args;
                 for (let i = 0; i < changes.length; ++i) {
                     this.onModelChange(changes[i][0], changes[i][1]);
                 }
-                console.timeEnd('apply dom changes');
                 break;
             }
         }

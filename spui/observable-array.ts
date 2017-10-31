@@ -166,8 +166,11 @@ export class Filter<T> {
 
             console.log('remaing: ', this.filtered.length);
 
+            console.time('apply - dom changes');
             return this.filtered.changes;
         });
+
+        console.timeEnd('apply - dom changes');
         return changes;
     }
 

@@ -47,7 +47,9 @@ function filterEx() {
             console.time('clear - splice');
             models.splice(0);
             console.timeEnd('clear - splice');
+            console.time('clear - dom change');
         });
+        console.timeEnd('clear - dom change');
     }
     const match = sp.valueStream('');
     const filter = new sp.Filter(models, (model: string) => {
