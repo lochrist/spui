@@ -126,8 +126,8 @@ describe('filter', function () {
         };
     }
 
-    function createSrc(srcValues: any[]) : sp.ArrayObserver<any> {
-        const src = new sp.ArrayObserver<any>();
+    function createSrc(srcValues: any[]) : sp.ObservableArray<any> {
+        const src = new sp.ObservableArray<any>();
         src.push(...srcValues);
         return src;
     }
@@ -144,7 +144,7 @@ describe('filter', function () {
         return true;
     }
 
-    function expectArrayObserverEqual(a1: sp.ArrayObserver<any>, a2) {
+    function expectArrayObserverEqual(a1: sp.ObservableArray<any>, a2) {
         expect(arrayEqual(a1.array, a2)).toEqual(true);
     }
 
@@ -624,7 +624,7 @@ describe('dom generation', function () {
 
     interface NodeListData {
         nodeList: HTMLElement,
-        models: sp.ArrayObserver<any>
+        models: sp.ObservableArray<any>
     }
     function validateDomList(nld: NodeListData) {
         expect(nld.models.length).toEqual(nld.nodeList.childNodes.length);
@@ -636,7 +636,7 @@ describe('dom generation', function () {
     }
 
     function setupNodeList(title: string, noIndexCheck = false): NodeListData {
-        const models = new sp.ArrayObserver<any>();
+        const models = new sp.ObservableArray<any>();
         const id = getId();
         const attrs = {
             id: id

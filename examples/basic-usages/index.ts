@@ -325,7 +325,7 @@ function childrenValueChangeEx() {
 addExample('children value change', childrenValueChangeEx);
 
 function elementListEx () {
-    const models = new sp.ArrayObserver<any>();
+    const models = new sp.ObservableArray<any>();
     let count = 0;
     models.push(sp.valueStream(count++));
     models.push(sp.valueStream(count++));
@@ -368,7 +368,7 @@ function generateName() {
 }
 
 function filterEx() {
-    const models = new sp.ArrayObserver<string>();
+    const models = new sp.ObservableArray<string>();
     for (let i = 0; i < 1000; ++i) models.push(generateName());
     const match = sp.valueStream('');
     const filter = new sp.Filter(models, (model: string) => {
@@ -393,7 +393,7 @@ function todoExpressEx() {
     const newTitle = sp.valueStream('');
 
     // This will store all our todos and ensure the DOM todo list is kept in sync
-    const todos = new sp.ArrayObserver();
+    const todos = new sp.ObservableArray();
 
     function addTodo() {
         if (newTitle()) {

@@ -37,7 +37,7 @@ function generateName() {
 }
 
 function filterEx() {
-    const models = new sp.ArrayObserver<string>();
+    const models = new sp.ObservableArray<string>();
     for (let i = 0; i < 10000; ++i) {
         models.push(generateName());
     }
@@ -96,7 +96,7 @@ function filterEx() {
 }
 
 function perfArrayObserver() {
-    const models = new sp.ArrayObserver<string>();
+    const models = new sp.ObservableArray<string>();
 
     console.time('push - arrayObs');
     for (let i = 0; i < 100000; ++i) {

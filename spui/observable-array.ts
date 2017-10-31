@@ -2,8 +2,7 @@ import {remove} from './utils';
 export type Changes = Array<Array<any>>;
 export type ArrayListener = (op: string, args: any[], opReturnValue: any) => void;
 
-const mutables = 'pop push reverse splice shift sort unshift'.split(' ');
-export class ArrayObserver<T> {
+export class ObservableArray<T> {
     array: T[];
     listeners: ArrayListener[];
     changes: Changes;
@@ -106,12 +105,12 @@ export class ArrayObserver<T> {
 
 export type FilterPredicate<T> = (value: T) => any;
 export class Filter<T> {
-    src: ArrayObserver<T>;
-    filtered: ArrayObserver<T>;
+    src: ObservableArray<T>;
+    filtered: ObservableArray<T>;
     predicate: FilterPredicate<T>;
-    constructor(src: ArrayObserver<T>, predicate: FilterPredicate<T>) {
+    constructor(src: ObservableArray<T>, predicate: FilterPredicate<T>) {
         this.src = src;
-        this.filtered = new ArrayObserver();
+        this.filtered = new ObservableArray();
         this.predicate = predicate;
 
         const srcFiltered = this.src.array.filter(this.predicate);

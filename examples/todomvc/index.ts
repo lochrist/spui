@@ -11,14 +11,14 @@ class Todo {
     }
 }
 class Store {
-    todos: sp.ArrayObserver<Todo>;
+    todos: sp.ObservableArray<Todo>;
     todoFilter: sp.Filter<Todo>;
     editing: sp.Stream = sp.valueStream(null);
     todoCount: sp.Stream = sp.valueStream(0);
     remaining: sp.Stream = sp.valueStream(0);
     filterName: sp.Stream = sp.valueStream('all');
     constructor() {
-        this.todos = new sp.ArrayObserver<Todo>();
+        this.todos = new sp.ObservableArray<Todo>();
         this.todoFilter = new sp.Filter<Todo>(this.todos, this.isTodoFiltered.bind(this));
         this.todos.addListener(() => {
             this.updateState();

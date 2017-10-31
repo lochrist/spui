@@ -9,11 +9,11 @@ const colours = ['red', 'yellow', 'blue', 'green', 'pink', 'brown', 'purple', 'b
 const nouns = ['table', 'chair', 'house', 'bbq', 'desk', 'car', 'pony', 'cookie', 'sandwich', 'burger', 'pizza', 'mouse', 'keyboard'];
 export class Store {
     backup: any[];
-    data: sp.ArrayObserver<any>;
+    data: sp.ObservableArray<any>;
     selected: sp.Stream;
     id: number;
     constructor() {
-        this.data = new sp.ArrayObserver<any>();
+        this.data = new sp.ObservableArray<any>();
         this.selected = sp.valueStream();
         this.id = 1;
     }

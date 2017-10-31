@@ -6,7 +6,7 @@ interface Model {
     pos: string,
     class: sp.Stream
 }
-const mosaicModels = new sp.ArrayObserver<Model>();
+const mosaicModels = new sp.ObservableArray<Model>();
 
 function createMosaic() {
     return h('div', { id: 'root' }, sp.elementList('div', { class: 'container' }, mosaicModels, (element, model) => {

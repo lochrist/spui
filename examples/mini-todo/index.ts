@@ -4,7 +4,7 @@ const h = sp.h;
 
 function todoExpress() {
     const newTitle = sp.valueStream('');
-    const todos = new sp.ArrayObserver();
+    const todos = new sp.ObservableArray();
 
     function addTodo() {
         if (newTitle()) {

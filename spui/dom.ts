@@ -1,6 +1,6 @@
 import { isNode, isFunction, isString, isObject, expandValue, StringKeyMap, Functor0P, Functor1P} from './utils';
 import * as s from './stream';
-import {ArrayObserver} from './observable-array';
+import {ObservableArray} from './observable-array';
 
 export type Attrs = StringKeyMap<any>;
 export type ElementGenerator = () => HTMLElement;
@@ -141,12 +141,12 @@ function appendChild(element: HTMLElement, child: Child) {
 }
 
 export class ElementListMapper {
-    modelsObs: ArrayObserver<any>;
+    modelsObs: ObservableArray<any>;
     listRootElement: HTMLElement;
     elementCreator: ModelElementCreator;
     key: string;
     modelToElement: Map<any, HTMLElement>;
-    constructor(listRootElement: HTMLElement, modelsObs: ArrayObserver<any>, elementCreator: ModelElementCreator, key?: string) {
+    constructor(listRootElement: HTMLElement, modelsObs: ObservableArray<any>, elementCreator: ModelElementCreator, key?: string) {
         this.listRootElement = listRootElement;
         this.modelsObs = modelsObs;
         this.elementCreator = elementCreator;
@@ -247,7 +247,7 @@ export class ElementListMapper {
     }
 }
 
-export function elementList(tagName: string, attrs: Attrs, models: ArrayObserver<any>, nodeCreator: ModelElementCreator, key?: string) {
+export function elementList(tagName: string, attrs: Attrs, models: ObservableArray<any>, nodeCreator: ModelElementCreator, key?: string) {
     const listRootElement = h(tagName, attrs);
     (parent as any)._elementList = new ElementListMapper(listRootElement, models, nodeCreator, key);
     return  listRootElement;
