@@ -26,7 +26,6 @@ function remove(array, value) {
     }
     return array;
 }
-//# sourceMappingURL=utils.js.map
 
 let runningComputations = [];
 function setValue(stream, value) {
@@ -107,9 +106,6 @@ function compute(functor) {
         return result;
     }
 }
-
-
-//# sourceMappingURL=stream.js.map
 
 function h$1(tagName, attrs, children) {
     const element = document.createElement(tagName);
@@ -342,10 +338,6 @@ function elementList(tagName, attrs, models, nodeCreator, key) {
     return listRootElement;
 }
 
-
-
-//# sourceMappingURL=dom.js.map
-
 class ObservableArray {
     constructor(array) {
         this.array = array || [];
@@ -432,8 +424,6 @@ class ObservableArray {
     }
 }
 
-//# sourceMappingURL=index.js.map
-
 const h = h$1;
 const mosaicModels = new ObservableArray();
 function createMosaic() {
@@ -461,7 +451,6 @@ function fadeIn() {
 const mosaic = createMosaic();
 document.body.appendChild(mosaic);
 fadeIn();
-//# sourceMappingURL=index.js.map
 
 })));
 //# sourceMappingURL=index.js.map

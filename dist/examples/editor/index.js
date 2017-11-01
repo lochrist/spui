@@ -26,7 +26,6 @@ function remove(array, value) {
     }
     return array;
 }
-//# sourceMappingURL=utils.js.map
 
 let runningComputations = [];
 function setValue(stream, value) {
@@ -111,9 +110,6 @@ function compute(functor) {
         return result;
     }
 }
-
-
-//# sourceMappingURL=stream.js.map
 
 function h$1(tagName, attrs, children) {
     const element = document.createElement(tagName);
@@ -252,9 +248,6 @@ function targetAttr(eventAttrName, functor) {
         return functor(event.target[eventAttrName]);
     };
 }
-//# sourceMappingURL=dom.js.map
-
-//# sourceMappingURL=index.js.map
 
 const h = h$1;
 const marked = window.marked;
@@ -268,7 +261,6 @@ const editor = h('div', { id: 'editor' }, [
     h('div', { class: 'preview' }, htmlTextElement),
 ]);
 document.body.appendChild(editor);
-//# sourceMappingURL=index.js.map
 
 })));
 //# sourceMappingURL=index.js.map

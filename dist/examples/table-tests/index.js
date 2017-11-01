@@ -26,7 +26,6 @@ function remove(array, value) {
     }
     return array;
 }
-//# sourceMappingURL=utils.js.map
 
 let runningComputations = [];
 function setValue(stream, value) {
@@ -111,9 +110,6 @@ function compute(functor) {
         return result;
     }
 }
-
-
-//# sourceMappingURL=stream.js.map
 
 function h(tagName, attrs, children) {
     const element = document.createElement(tagName);
@@ -350,8 +346,6 @@ function getElementList(nodeListElement) {
     return parent._elementList;
 }
 
-//# sourceMappingURL=dom.js.map
-
 const performance = window.performance;
 const setTimeout = window.setTimeout;
 let startTime;
@@ -452,7 +446,6 @@ class App {
         stopMeasure();
     }
 }
-//# sourceMappingURL=app.js.map
 
 class ObservableArray {
     constructor(array) {
@@ -540,8 +533,6 @@ class ObservableArray {
     }
 }
 
-//# sourceMappingURL=index.js.map
-
 function random(max) {
     return Math.round(Math.random() * 1000) % max;
 }
@@ -610,13 +601,11 @@ class Store {
         }
     }
 }
-//# sourceMappingURL=store.js.map
 
 'use strict';
 const store = new Store();
 const app = new App({ store });
 document.body.appendChild(app.rootViewEl);
-//# sourceMappingURL=index.js.map
 
 })));
 //# sourceMappingURL=index.js.map

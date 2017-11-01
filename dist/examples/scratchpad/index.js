@@ -26,7 +26,6 @@ function remove(array, value) {
     }
     return array;
 }
-//# sourceMappingURL=utils.js.map
 
 let runningComputations = [];
 function setValue(stream, value) {
@@ -111,9 +110,6 @@ function compute(functor) {
         return result;
     }
 }
-
-
-//# sourceMappingURL=stream.js.map
 
 function h$1(tagName, attrs, children) {
     const element = document.createElement(tagName);
@@ -352,7 +348,6 @@ function targetAttr(eventAttrName, functor) {
         return functor(event.target[eventAttrName]);
     };
 }
-//# sourceMappingURL=dom.js.map
 
 class ObservableArray {
     constructor(array) {
@@ -574,8 +569,6 @@ class Filter {
     }
 }
 
-//# sourceMappingURL=index.js.map
-
 const h = h$1;
 function randomNumber(maxValue) {
     return Math.floor(Math.random() * maxValue);
@@ -657,8 +650,8 @@ function filterEx() {
         })
     ]);
 }
+// perfWrapper();
 document.body.appendChild(filterEx());
-//# sourceMappingURL=index.js.map
 
 })));
 //# sourceMappingURL=index.js.map

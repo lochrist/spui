@@ -26,7 +26,6 @@ function remove(array, value) {
     }
     return array;
 }
-//# sourceMappingURL=utils.js.map
 
 let runningComputations = [];
 function setValue(stream, value) {
@@ -120,7 +119,6 @@ function eventStream(source, name, useCapture) {
     element.addEventListener(name, eventStream, !!useCapture);
     return eventStream;
 }
-//# sourceMappingURL=stream.js.map
 
 function h(tagName, attrs, children) {
     const element = document.createElement(tagName);
@@ -363,7 +361,6 @@ function targetAttr(eventAttrName, functor) {
         return functor(event.target[eventAttrName]);
     };
 }
-//# sourceMappingURL=dom.js.map
 
 class ObservableArray {
     constructor(array) {
@@ -584,8 +581,6 @@ class Filter {
         }
     }
 }
-
-//# sourceMappingURL=index.js.map
 
 exports.h = h;
 exports.ElementListMapper = ElementListMapper;

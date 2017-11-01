@@ -26,7 +26,6 @@ function remove(array, value) {
     }
     return array;
 }
-//# sourceMappingURL=utils.js.map
 
 let runningComputations = [];
 function setValue(stream, value) {
@@ -114,8 +113,6 @@ function compute(functor) {
 function computeStream(functor) {
     return compute(functor).computedStream;
 }
-
-//# sourceMappingURL=stream.js.map
 
 function h$1(tagName, attrs, children) {
     const element = document.createElement(tagName);
@@ -354,7 +351,6 @@ function targetAttr(eventAttrName, functor) {
         return functor(event.target[eventAttrName]);
     };
 }
-//# sourceMappingURL=dom.js.map
 
 class ObservableArray {
     constructor(array) {
@@ -575,8 +571,6 @@ class Filter {
         }
     }
 }
-
-//# sourceMappingURL=index.js.map
 
 const h = h$1;
 const examples = [];
@@ -981,7 +975,6 @@ function todoExpressEx() {
 addExample('todo express', todoExpressEx);
 const view = createExamplesView(examples);
 document.body.appendChild(view);
-//# sourceMappingURL=index.js.map
 
 })));
 //# sourceMappingURL=index.js.map
