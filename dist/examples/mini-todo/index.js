@@ -108,6 +108,9 @@ function compute(functor) {
     }
 }
 
+
+//# sourceMappingURL=stream.js.map
+
 function h$1(tagName, attrs, children) {
     const element = document.createElement(tagName);
     if (attrs) {
@@ -406,7 +409,6 @@ class ObservableArray {
             throw e;
         }
         if (this.changes) {
-            console.log('emit changes: ', this.changes.length);
             this.emit('changes', this.changes);
         }
         this.changes = null;
@@ -433,8 +435,6 @@ class ObservableArray {
         }
     }
 }
-
-//# sourceMappingURL=observable-array.js.map
 
 //# sourceMappingURL=index.js.map
 
@@ -473,7 +473,6 @@ function todoExpress() {
     ]);
     document.body.appendChild(view);
 }
-console.log(todoExpress.toString());
 todoExpress();
 //# sourceMappingURL=index.js.map
 

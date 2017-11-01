@@ -73,7 +73,6 @@ export class ObservableArray<T> {
             throw e;
         }
         if (this.changes) {
-            console.log('emit changes: ', this.changes.length);
             this.emit('changes', this.changes);
         }
         this.changes = null;
@@ -135,7 +134,6 @@ export class Filter<T> {
                 return this.filtered.changes;
             } 
 
-            console.time('applyFilter');
             // Apply only differences between 2 filter run:
             let filterIndex = 0;
             for (let srcIndex = 0; srcIndex < this.src.length; ++srcIndex) {
@@ -162,15 +160,8 @@ export class Filter<T> {
             if (filterIndex < this.filtered.length) {
                 this.filtered.splice(filterIndex);
             }
-            console.timeEnd('applyFilter');
-
-            console.log('remaing: ', this.filtered.length);
-
-            console.time('apply - dom changes');
             return this.filtered.changes;
         });
-
-        console.timeEnd('apply - dom changes');
         return changes;
     }
 

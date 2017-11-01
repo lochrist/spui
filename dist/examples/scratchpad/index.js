@@ -112,6 +112,9 @@ function compute(functor) {
     }
 }
 
+
+//# sourceMappingURL=stream.js.map
+
 function h$1(tagName, attrs, children) {
     const element = document.createElement(tagName);
     if (attrs) {
@@ -410,7 +413,6 @@ class ObservableArray {
             throw e;
         }
         if (this.changes) {
-            console.log('emit changes: ', this.changes.length);
             this.emit('changes', this.changes);
         }
         this.changes = null;
@@ -460,7 +462,6 @@ class Filter {
                 }
                 return this.filtered.changes;
             }
-            console.time('applyFilter');
             // Apply only differences between 2 filter run:
             let filterIndex = 0;
             for (let srcIndex = 0; srcIndex < this.src.length; ++srcIndex) {
@@ -488,12 +489,8 @@ class Filter {
             if (filterIndex < this.filtered.length) {
                 this.filtered.splice(filterIndex);
             }
-            console.timeEnd('applyFilter');
-            console.log('remaing: ', this.filtered.length);
-            console.time('apply - dom changes');
             return this.filtered.changes;
         });
-        console.timeEnd('apply - dom changes');
         return changes;
     }
     srcChanged(op, args, opReturnValue) {
@@ -576,7 +573,6 @@ class Filter {
         }
     }
 }
-//# sourceMappingURL=observable-array.js.map
 
 //# sourceMappingURL=index.js.map
 

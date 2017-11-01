@@ -41,6 +41,4 @@ function todoExpress() {
     document.body.appendChild(view);
 }
 
-console.log(todoExpress.toString());
-
 todoExpress();

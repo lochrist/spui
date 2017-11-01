@@ -112,6 +112,9 @@ function compute(functor) {
     }
 }
 
+
+//# sourceMappingURL=stream.js.map
+
 function h$1(tagName, attrs, children) {
     const element = document.createElement(tagName);
     if (attrs) {
@@ -250,8 +253,6 @@ function targetAttr(eventAttrName, functor) {
     };
 }
 //# sourceMappingURL=dom.js.map
-
-//# sourceMappingURL=observable-array.js.map
 
 //# sourceMappingURL=index.js.map
 
