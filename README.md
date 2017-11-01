@@ -129,7 +129,7 @@ More complete examples can be found below:
 
 # API
 
-This section covers all the public Api for SPUI. If it becomes out of date (how could that happen?) you can always look at the typescript declaration files [here](dist/types/spui) to have access to the actual Api.
+This section covers all the public Api for SPUI. If it becomes out of date (how could that happen?) you can always look at the typescript declaration files [here](https://github.com/lochrist/spui/tree/master/dist/types/spui) to have access to the actual Api.
 
 ## DOM Manipulation
 
@@ -657,7 +657,7 @@ Argument    | Type                 | Required | Description
 
 `addListener` allow to receive notifications when the ObservableArray is modified. It returns a `function` that when invoked will stop listening for changes.
 
-See [Filter srcChanged implementation](TODO) or [elementList onModelChange implementation](TODO) to have examples on how to react to ObservableArray changes.
+See [Filter srcChanged implementation](https://github.com/lochrist/spui/blob/3be7a9bfb0af88c897641e76e485b6fcf64371b8/spui/observable-array.ts#L178) or [elementList onModelChange implementation](https://github.com/lochrist/spui/blob/3be7a9bfb0af88c897641e76e485b6fcf64371b8/spui/dom.ts#L164) to have examples on how to react to ObservableArray changes.
 
 ---
 
