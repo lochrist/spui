@@ -112,6 +112,9 @@ function compute(functor) {
     }
 }
 
+
+//# sourceMappingURL=stream.js.map
+
 function h$1(tagName, attrs, children) {
     const element = document.createElement(tagName);
     if (attrs) {

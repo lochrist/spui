@@ -10,7 +10,7 @@
         "removeComments": false,
         "noImplicitAny": false,
         "declaration": true,
-        "declarationDir": "es/types",
+        "declarationDir": "dist/types",
         "outDir": "es",
         "typeRoots": [
             "node_modules/@types"

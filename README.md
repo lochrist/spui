@@ -113,7 +113,7 @@ All that is left is to hook the view on to the body of the Document. Since the r
 document.body.appendChild(view);
 ```
 
-And that's it! We now have a todo application (like a millitoj other ones):
+And that's it! We now have a todo application (like a million other ones):
 
 ![spui](docs/spui.gif)
 
@@ -129,7 +129,7 @@ More complete examples can be found below:
 
 # API
 
-This section covers all the public Api for SPUI. If it becomes out of date (how could that happen?) you can always look at the typescript declaration file [here](TODO) to have access to the actual Api.
+This section covers all the public Api for SPUI. If it becomes out of date (how could that happen?) you can always look at the typescript declaration files [here](dist/types/spui) to have access to the actual Api.
 
 ## DOM Manipulation
 
