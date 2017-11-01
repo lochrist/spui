@@ -56,6 +56,11 @@ describe('stream', function () {
 
             off();
             expect(v._listeners.length).toEqual(0);
+
+            sp.addListener(v, assignResult);
+            expect(v._listeners.length).toEqual(1);
+            sp.removeListener(v, assignResult);
+            expect(v._listeners.length).toEqual(0);
         });
 
         it('map', function () {

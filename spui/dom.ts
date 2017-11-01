@@ -261,12 +261,8 @@ export function getElementList(nodeListElement: HTMLElement): ElementListMapper 
     return (parent as any)._elementList;
 }
 
-export function selectTargetAttr(eventAttrName: string, functor: s.Stream | Functor1P) {
+export function targetAttr(eventAttrName: string, functor: s.Stream | Functor1P) {
     return function (event) {
         return functor(event.target[eventAttrName]);
     }
-}
-
-export function select(condition: any, ifTrue: Child, ifFalse?: Child) {
-    return expandValue(condition) ? expandValue(ifTrue) : (ifFalse && expandValue(ifFalse));
 }

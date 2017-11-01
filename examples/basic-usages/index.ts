@@ -80,7 +80,6 @@ function logView(commands) {
 function createExamplesView(examples: Example[]) {
     return h('div', { class: 'container' }, examples.map(example => {
         let snippetEl;
-        const exampleView = example.exampleGenerator();
         const el = h('div', { class: 'row' }, [
             h('h3', { class: 'col-md-12' }, example.title),
             snippetEl = h('div', { class: 'col-md-8'}),
@@ -105,6 +104,15 @@ function valueStreamEx() {
 
      // Prints 71
     console.log(model());
+
+    // Create a stream with a transformer function:
+    const doublingModel = sp.valueStream(42, value => value * 2);
+     // Prints 84
+    console.log(doublingModel());
+    // Thuis will invoke the transformer before setting the stream value:
+    doublingModel(21);
+     // Prints 42
+    console.log(doublingModel());
 }
 
 function valueStreamExView() {
@@ -132,12 +140,16 @@ addExample('value transform', streamTransformEx);
 function streamListenerEx() {
     const model = sp.valueStream(42);
     
-    sp.addListener(model, value => {
+    const stopListening = sp.addListener(model, value => {
         console.log('Model has changed: ', value);
     });
 
     // prints: Model has changed: 11
     model(11);
+
+    stopListening();
+    // This won't print anything.
+    model(22);
 }
 addExample('stream listener', streamListenerEx);
 
@@ -308,7 +320,7 @@ function genericAttributesUpdate() {
     const isChecked = sp.valueStream(true);
     // Attributre with a boolean value, are setup specially in the DOM
     return h('div', {}, [
-        h('input', { type: 'checkbox', checked: isChecked, onclick: sp.selectTargetAttr('checked', isChecked) }),
+        h('input', { type: 'checkbox', checked: isChecked, onclick: sp.targetAttr('checked', isChecked) }),
         h('button', {title: () => isChecked() ? 'this is checked' : 'this is unchecked'}, 'Hover me!')
     ]);
 }
@@ -318,7 +330,7 @@ function inputValueChangeEx() {
     const model = sp.valueStream('this is my initial value');
     return h('div', {}, [
         // when the user types into the <input> we update model...
-        h('input', { value: model, oninput: sp.selectTargetAttr('value', model) }),
+        h('input', { value: model, oninput: sp.targetAttr('value', model) }),
         // ...when model changes, label content updates automatically.
         h('label', {}, model)
     ]);
@@ -377,6 +389,48 @@ function generateName() {
     return randomElement(firstNames) + ' ' + randomElement(lastNames);
 }
 
+function observableArrayEx() {
+    const obsArray = new sp.ObservableArray<number>();
+
+    const off = obsArray.addListener((op, args, returnValue) => {
+        console.log(op, args, returnValue);
+    });
+
+    // prints: 'push' [1] 1
+    obsArray.push(1);
+
+    // prints: 'splice' [0, 1, 42] [1]
+    obsArray.splice(0, 1, 42);
+
+    // stop listening
+    off();
+
+    // Doesn't print anything.
+    obsArray.push(2);
+}
+addExample('observable array', observableArrayEx);
+
+function observableArrayApplyChangesEx() {
+    const obsArray = new sp.ObservableArray<number>();
+
+    obsArray.addListener((op, args, returnValue) => {
+        console.log(op, args, returnValue);
+    });
+
+    const finalValue = obsArray.applyChanges(() => {
+        obsArray.push(1);
+        obsArray.splice(0, 1, 42);
+
+        return obsArray.length;
+    });
+
+    // When this resolve the listener will print this:
+    // changes [['push', [1], 1], ['splice' [0, 1, 42] [1] ]]
+
+    // Notice that finalValue === obsArray.length
+}
+addExample('observable array apply changes', observableArrayApplyChangesEx);
+
 function filterEx() {
     const models = new sp.ObservableArray<string>();
     for (let i = 0; i < 1000; ++i) models.push(generateName());
@@ -387,7 +441,7 @@ function filterEx() {
     const triggerFilter = sp.map(match, () => filter.applyFilter());
 
     return h('div', {}, [
-        h('input', { oninput: sp.selectTargetAttr('value', match) }),
+        h('input', { oninput: sp.targetAttr('value', match) }),
         // elementList will update the <ul> element when new elements are added or removed.
         sp.elementList('ul', {style: 'height: 300px;overflow: auto'}, filter.filtered, (listNode: HTMLElement, model: any, index: number) => {
             return h('li', {}, model)
@@ -432,7 +486,7 @@ function todoExpressEx() {
             h('input', {
                 type: 'text', value: newTitle, placeholder: 'what is up?',
                 // Update the title value as the user types in the input.
-                oninput: sp.selectTargetAttr('value', newTitle)
+                oninput: sp.targetAttr('value', newTitle)
             }),
             h('span', { class: 'addBtn', onclick: addTodo }, 'Add'),
         ]),

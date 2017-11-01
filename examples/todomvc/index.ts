@@ -136,7 +136,7 @@ class App {
                             h('label', { disabled: todo.completed, ondblclick: () => this.edit(todo, inputTitleElement) }, todo.title),
                             h('button', {class: 'destroy', onclick: () => this.store.destroy(todo) }),
                         ]),
-                        inputTitleElement = h('input', { class: 'edit', onchange: sp.selectTargetAttr('value', this.store.updateTitle.bind(this.store)) })
+                        inputTitleElement = h('input', { class: 'edit', onchange: sp.targetAttr('value', this.store.updateTitle.bind(this.store)) })
                     ])
                 }),
             ]),

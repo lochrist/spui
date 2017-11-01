@@ -86,7 +86,7 @@ function filterEx() {
     const triggerFilter = sp.map(match, () => filter.applyFilter());
 
     return h('div', {}, [
-        h('input', { oninput: sp.selectTargetAttr('value', match) }),
+        h('input', { oninput: sp.targetAttr('value', match) }),
         h('button', { onclick: clear }, 'clear'),
         // elementList will update the <ul> element when new elements are added or removed.
         nodeList = sp.elementList('ul', { style: 'height: 300px;width: 300px;overflow: auto' }, filter.filtered, (listNode: HTMLElement, model: any, index: number) => {

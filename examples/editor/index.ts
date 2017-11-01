@@ -12,7 +12,7 @@ const htmlText = sp.map(markdownText, md => {
 });
 
 const editor = h('div', {id: 'editor'}, [
-    h('textarea', { class: 'input', value: markdownText, oninput: sp.selectTargetAttr('value', markdownText)}),
+    h('textarea', { class: 'input', value: markdownText, oninput: sp.targetAttr('value', markdownText)}),
     h('div', { class: 'preview' }, htmlTextElement),
 ]);
 

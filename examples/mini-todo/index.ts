@@ -27,7 +27,7 @@ function todoExpress() {
     const view = h('div', { id: 'todoapp'}, [
         h('div', {class: 'header'}, [
             h('h3', {}, 'todo express'),
-            h('input', { type: 'text', value: newTitle, placeholder: 'what is up?', oninput: sp.selectTargetAttr('value', newTitle) }),
+            h('input', { type: 'text', value: newTitle, placeholder: 'what is up?', oninput: sp.targetAttr('value', newTitle) }),
             h('span', { class: 'addBtn', onclick: addTodo }, 'Add'),
         ]),
         sp.elementList('ul', {}, todos, (listNode: HTMLElement, todo: any, index: number) => {

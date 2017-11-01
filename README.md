@@ -113,15 +113,15 @@ And that's it! We now have a todo application (like a millitoj other ones):
 
 More complete examples can be found below:
 
-- [TODO MVC](): the official [TODO MVC](http://todomvc.com/) has been implemented for SPUI will all kinds of nifty TODO workflows.
-- [Table benchmarks]() and implementation of the world famous [JS Framework Benchmarks](https://github.com/krausest/js-framework-benchmark) using SPUI. This implementation is deceptively small and the performance is really good. It should be submitted to the official site soon(ish).
-- [Markdown Editor](): really simple example on how to listen to changes in a `<textarea>` and live convert those changes in markdown.
-- [Mini TODO]() because no web developer can't get enough TODO, this is the running app from the `Getting Started` example above.
-- [Basic API usages]() this is a repository of snippets that showcases all the different functions of the SPUI Api. Some of these examples are used in the official Api documentation in the next section.
+- [TODO MVC](TODO): the official [TODO MVC](http://todomvc.com/) has been implemented for SPUI will all kinds of nifty TODO workflows.
+- [Table benchmarks](TODO) and implementation of the world famous [JS Framework Benchmarks](https://github.com/krausest/js-framework-benchmark) using SPUI. This implementation is deceptively small and the performance is really good. It should be submitted to the official site soon(ish).
+- [Markdown Editor](TODO): really simple example on how to listen to changes in a `<textarea>` and live convert those changes in markdown.
+- [Mini TODO](TODO) because no web developer can't get enough TODO, this is the running app from the `Getting Started` example above.
+- [Basic API usages](TODO) this is a repository of snippets that showcases all the different functions of the SPUI Api. Some of these examples are used in the official Api documentation in the next section.
 
 # API
 
-This section covers all the public Api for SPUI. If it becomes out of date (how could that happen?) you can always look at the typescript declaration file [here]() to have access to the actual Api.
+This section covers all the public Api for SPUI. If it becomes out of date (how could that happen?) you can always look at the typescript declaration file [here](TODO) to have access to the actual Api.
 
 ## DOM Manipulation
 
@@ -151,7 +151,7 @@ When you want to produce the following HTML:
 you use `h` like this:
 
 ```javascript
-h('div[, {id: 'todoapp'}, [
+h('div', {id: 'todoapp'}, [
     h('input', {type: 'text', placeholder: 'what is up?', onpinput=myHandler),
     h('button', {onclick: clickHandler}, 'Add')
 ])
@@ -164,8 +164,13 @@ All the intricacies comes into how to specify the different element attributes a
 Attributes are specified as a javascript object where each key must be a string. Each of these key will be used to set an attribute (or property) of the created HTMLElement. The value of each attribute can be either a `number`, `string` or `boolean` or a `function`. If you specify a `function`, SPUI will evaluate it to see if it is a Stream and if so, it will keep a binding on that Stream so when it changes, the DOM attributes will be updated as well. Here is an example of an element attribute:
 
 ```javascript
-const isActivated = valueStream(true);
-h('button', {id: 'myButton' title: () => isActivated() ? 'Button is active' : 'Button is not active'}, 'Hover me!')
+const model = valueStream('this is my initial value');
+h('div', {}, [
+    // when the user types into the <input> we update model...
+    h('input', { id: 'myInput', placeholder: 'Enter a value' value: model, oninput: selectTargetAttr('value', model) }),
+    // ...when model changes, label content updates automatically.
+    h('label', {}, model)
+]);
 ```
 
 #### class attribute
@@ -272,51 +277,145 @@ h('div', { class: 'child-container' }, [
 readonlyInput(true);
 ```
 
+#### events
+
+Any attribute name beginning with `on` is assumed to be an event handler that will be added as a listener to the HTMLElement:
+
+```javascript
+let input, button, buttonText = 'Roll D6';
+h('div', { class: 'child-container' }, [
+    input = h('input', { placeholder: 'this is readonly', readonly: true, value: 1 }),
+    // Listener to an event is adding an attribute of name : on<eventName>
+    button = h('button', {
+        onclick: () => {
+            // h() returns an HTMLElement. So it is really easy changing the value of input:
+            input.value = randomNumber(6) + 1;
+        },
+        onmouseenter: () => {
+            button.innerText = 'Click to roll';
+        },
+        onmouseleave: () => {
+            button.innerText = buttonText;
+        }
+    }, buttonText),
+]);
+```
+
+
 #### children
 
+You can specify children in multiple ways with `h'. Children can either be a single value )(`string`, `number`, `boolean`, `HTMLElement`):
+
+```javascript
+h('div', {}, 'this is a text children');
+h('div', {}, 42);
+h('div', {}, 
+    h('span', {}, 'hello world')
+);
+```
+
+You can also specify a `function` (`(parentelement: HTMLElement) => HTMLElement`) that will receive the newly created element as a parameter and that must output an HTMLElement:
+
+```javascript
+let parent = h('div', {}, p => {
+    // Here p === parent:
+    return h('span', {}, 'I am a children');
+});
+```
+
+You can also specify a Stream that will update the children value:
+
+```javascript
+const title = valueStream('This is my title');
+h('div', {}, title);
+
+title('I have changed'); // Updates the text children node of the HTMLElement
+```
+
+A `children` value in `h` can also be an `array` of any of the above:
+
+```javascript
+const title = valueStream('This is my title');
+let parent = h('div', { class: 'child-container' }, [
+    'this is a text children',
+    title
+    p => {
+        // Here p === parent:
+        return h('span', {}, 'I am a children');
+    }
+    h('button', {}, 'Button child')
+]);
+```
+
+For more information on specifying a dynamic list of children see `elementList` below.
 
 ---
 
-## elementList(tagName, attrs, models, elementCreator) -> HTMLElement
+## elementList(tagname, attrs, models, elementCreator) -> HTMLElement
 
 Argument    | Type                 | Required | Description
 ----------- | -------------------- | -------- | ---
-`tagname`   | `Element`            | Yes      | A DOM element that will be the parent node to the subtree
-`attrs`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
-`children`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
+`tagname`   | `string`            | Yes      | The HTML Element tagname (div, label, button, ...)
+`attrs`    | `Object` | No      | An Object where all keys are attributes or properties to specify  on the HTMLElement
+`models`    | `ObservableArray<T>` | Yes      | An Array containing all the model objects.
+`elementCreator`    | `Function` | Yes      | Function called to create HTMLElement when a model is added to `models`
 **returns** |                      |          | Returns the newly created [HTMLElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement)
 
 #### Description
 
-pow this is a description
+`elementList` will create an HTMLElement that listen to the `models` notification to create new children using `elementCreator` or to remove child that are deleted from `models`.
+
+
+`elementCreator` has the following signature: `(listRootElement: HTMLElement, model: any, index: number) => HTMLElement`
+- `listRootElement`: this is the parent of the HTMLElement child to create.
+- `model`: This is the model used to populate the HTMLElement
+- `index`: index of the model in the `models` ObservableArray
+
+```javascript
+const models = new ObservableArray();
+let count = 0;
+h('div', {}, [
+    // Add a new value to the models: this will add a new HTML children in the DOM
+    h('button', { onclick: () => models.push(valueStream(count++)) }, 'Add'),
+    // Remove a random element from models. This will remove the corresponding
+    // HTMLElement from the DOM
+    h('button', { onclick: () => models.splice(randomIndex(models.array), 1) }, 'Remove random'),
+    // elementList will update the <ul> element when new elements are added or removed.
+    elementList('ul', {}, models, (listNode, model, index) => {
+        // Simple <li> sowing the model value:
+        return h('li', {}, model);
+    })
+]);
+```
 
 ---
 
-## selectTargetAttr(eventAttrName, handler) -> (event) => void
+## targetAttr(eventAttrName, handler) -> (event) => void
 
 Argument    | Type                 | Required | Description
 ----------- | -------------------- | -------- | ---
-`eventAttrName`   | `Element`            | Yes      | A DOM element that will be the parent node to the subtree
-`handler`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
+`eventAttrName`   | `string`            | Yes      | Name of an attribute on the `event.target`.
+`handler`    | `(value) => void` | Yes      | A callback that take the selected attribute as parameters
 **returns** |                      |          | Returns an event handler that can be hooked on to a [DOM event](https://developer.mozilla.org/en-US/docs/Web/Events).
 
 #### Description
 
-pow this is a description
+This is a helper method used to make building our view simpler. If you use `selectTargetAttr` when registering a DOM event it extract from the `event.target` a specific attribute and forward it to a custom `handler`.
+
+Here is what extracting the `checked` value would look like without `targetAttr`:
+
+```javascript
+h('input', { type: 'checkbox', checked: isChecked, onclick: event => isChecked(event.target.checked) })
+```
+
+This is how it looks with `targetAttr`:
+
+```javascript
+h('input', { type: 'checkbox', checked: isChecked, onclick: targetAttr('checked', isChecked) })
+```
+
 ---
 
-## select(condition, ifTrue, ifFalse) -> HTMLElement
-
-Argument    | Type                 | Required | Description
------------ | -------------------- | -------- | ---
-`eventAttrName`   | `Element`            | Yes      | A DOM element that will be the parent node to the subtree
-`handler`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
-**returns** |                      |          | Returns an event handler that can be hooked on to a [DOM event](https://developer.mozilla.org/en-US/docs/Web/Events).
-
-#### Description
-
-pow this is a description
----
 
 ## Stream
 
@@ -332,13 +431,32 @@ SPUI streams are similar to [flyd](https://github.com/paldepind/flyd) and [mithr
 
 Argument    | Type                 | Required | Description
 ----------- | -------------------- | -------- | ---
-`initialValue`   | | Yes      | A DOM element that will be the parent node to the subtree
-`transform`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
-**returns** |                      |          | Returns an event handler that can be hooked on to a [DOM event](https://developer.mozilla.org/en-US/docs/Web/Events).
+`initialValue`   | any | Yes      | Initial value of the stream
+`transform`    | value => any | No      | Function that will convert the the `value` each time the stream is onvoked as a setter.
+**returns** |                      |          | Returns a Stream wrapping `value`
 
 #### Description
 
-pow this is a description
+`valueStream` creates a Stream. A Stream is a `function` that act as a getter when onvoked with no parameter. It act as a setter when invoked with a single parameter and it notifies it listeners that its value has changed.
+
+If `transform` is specified, each time ther stream is invoked as a setter, it will apply the `transform` function before setting the backing value.
+
+```javascript
+const model = valueStream(42);
+// stream called with no param: getter
+console.log(model());
+// stream called with a param: setter
+model(71);
+// Prints 71
+console.log(model());
+
+const doublingModel = valueStream(42, value => value * 2);
+console.log(doublingModel()); // Prints 84
+
+doublingModel(21);
+console.log(doublingModel()); // Prints 42
+
+```
 
 ---
 
@@ -346,13 +464,25 @@ pow this is a description
 
 Argument    | Type                 | Required | Description
 ----------- | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
-**returns** |                      |          | Returns an event handler that can be hooked on to a [DOM event](https://developer.mozilla.org/en-US/docs/Web/Events).
+`stream`   | `Stream` | Yes      | The stream to listen to for value change
+`listener`    | `value => void` | Yes      | calback to be invoked when the stream value changes
+**returns** | `() => void`|          | Returns a `function` that when invoked will stop listening for value changes.
 
 #### Description
 
-pow this is a description
+Add a listener to be notified when the stream value changes:
+
+```javascript
+const model = valueStream(42);
+const stopListening = addListener(model, value => {
+    console.log('Model has changed: ', value);
+});
+// prints: Model has changed: 11
+model(11);
+stopListening();
+// This won't print anything.
+model(22);
+```
 
 ---
 
@@ -360,12 +490,12 @@ pow this is a description
 
 Argument    | Type                 | Required | Description
 ----------- | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
+`stream`   | `Stream` | Yes      | Stream to stop listening to
+`listener`    |`() => void` | Yes      | The [vnodes](vnodes.md) to be rendered
 
 #### Description
 
-pow this is a description
+Stops listening to value changes of a particular stream.
 
 ---
 
@@ -373,71 +503,108 @@ pow this is a description
 
 Argument    | Type                 | Required | Description
 ----------- | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
+`stream`   | `Stream` | Yes      | Stream that will be added a `transformer` function
+`transformer`    | `value => any` | Yes      | Function that will transformed the value before setting it in the stream.
 
 #### Description
 
-pow this is a description
+Modifies a Stream and add a `transformer` function to it. This `transformer` will be invoked each time the stream is used as a setter.
 
+```javascript
+const model = valueStream(42);
+// Prints 42
+console.log(model());
+// Modify the stream itself by adding a transformer:
+addTransform(model, value => value * 2);
+// Prints 84
+console.log(model());
+```
+---
+
+## computeStream(functor) -> Stream
+
+Argument    | Type                 | Required | Description
+----------- | -------------------- | -------- | ---
+`functor`   | `() => any` | Yes      | A Function that can contains any number of stream usage and that returns any value.
+**returns** | `Stream`|          | Returns a computed stream that updates when its dependencies are modified.
+
+#### Description
+
+`compute` creates a new computed stream that is the result of evaluating a `functor` containing other streams. Each time any of the dependencies streams changes, the value of the computed stream is updated.
+
+```javascript
+const firstName = valueStream('Donald');
+const lastName = valueStream('Knuth');
+const fullName = computeStream(() => {
+    return firstName() + ' ' + lastName();
+});
+// Prints: Donald Knight
+console.log(fullName());
+lastName('Duck');
+// Prints Donald Duck. And loses all respect.
+console.log(fullName());
+```
+
+Notice that the computed stream **cannot** be used as a setter. Its resulting value is ALWAYS the result of the computation.
+
+```javascript
+fullName('Donald the Mighty');
+
+// Still prints Donald Duck.
+console.log(fullName());
+```
+
+---
+
+## compute(functor) -> Computation
+
+Argument    | Type                 | Required | Description
+----------- | -------------------- | -------- | ---
+`functor`   | '() => any' | Yes      | A Function that can contains any number of stream usage and that returns any value.
+**returns** | `Computation`|          | Returns a `Computation` that contains a computed stream and its dependencies.
+
+#### Description
+
+Similar to `computeStream` above but also returns the lists of all dependencies used to evaluate the `computedStream`.
+
+### Computation declaration
+
+```javascript
+export interface Computation {
+    computedStream: Stream;
+    dependencies: Stream[];
+}
+```
 ---
 
 ## map(stream, transformer) -> Stream
 
-Argument    | Type                 | Required | Description
------------ | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
+`stream`   | `Stream` | Yes      | Stream that will be added a `transformer` function
+`transformer`    | `value => any` | Yes      | Function that will transformed the value before setting it in the stream.
+**returns** | `Stream`|          | Returns a new stream 
 
 #### Description
 
-pow this is a description
+Creates a new Stream that will invoke `transformer` function each time the original `stream` is changed.
 
----
-
-## compute(functor, transformer) -> Computation
-
-Argument    | Type                 | Required | Description
------------ | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
-
-#### Description
-
-pow this is a description
-
----
-
-## computeStream(functor, transformer) -> Stream
-
-Argument    | Type                 | Required | Description
------------ | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
-
-#### Description
-
-pow this is a description
-
----
-
-## eventStream(source, name, useCapture?) -> Stream
-
-Argument    | Type                 | Required | Description
------------ | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
-
-#### Description
-
-pow this is a description
-
+```javascript
+const model = valueStream(42);
+// Create a new stream that maps the original model value:
+const mappedModel = map(model, value => value * 2);
+// Prints 42
+console.log(model());
+// Prints 84
+console.log(mappedModel());
+model(11);
+// Prints 22
+console.log(mappedModel());
+```
 ---
 
 
 ## ObservableArray
 
-ObservableArray are a wrapper over a builtin javascript array. It reimplements all the mutators functions (`push`, `pop`, `splice`, `shift`, `unshift`, `sort`, `reverse`) and broadcast events to listeners when any of those mutators are applied. SPUI `elementList` function listens to changes happening in an ObservableArray model to update the DOM by adding or removing new models.
+ObservableArray are a wrapper over a builtin javascript array. It reimplements all the mutators functions (`push`, `pop`, `splice`, `shift`, `unshift`, `sort`, `reverse`) and broadcast events to listeners when any of those mutators are applied. SPUI `elementList` listens to changes happening in an ObservableArray to update the DOM by adding or removing new models.
 
 ### ObservableArray declaration
 
@@ -463,45 +630,76 @@ class ObservableArray<T> {
 }
 ```
 
-## Notes on Mutator functions
-
-
-## applyChanges(changeFunctor) -> Stream
-
-Argument    | Type                 | Required | Description
------------ | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
-
-#### Description
-
-pow this is a description
-
----
-
 ## addListener(arrayChangeListener) -> RemoveListenerFunctor
 
 Argument    | Type                 | Required | Description
 ----------- | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
+`arrayChangeListener`   | see below | Yes      | A function that gets called when any of the ObservableArray mutators gets called.
+**returns** | `() => void`|          | Returns a `function` that when invoked will stop listening for array changes.
 
 #### Description
 
-pow this is a description
+### Array change listener declaration
 
+`(op: string, args: any[], opReturnValue: any) => void`
+
+- `op`: name of the mutator that got invoked
+- `args`: arguments passed to the mutators
+- `opReturnValue`: result of the mutator invocation.
+
+`addListener` allow to receive notifications when the ObservableArray is modified. It returns a `function` that when invoked will stop listening for changes.
+
+See [Filter srcChanged implementation](TODO) or [elementList onModelChange implementation](TODO) to have examples on how to react to ObservableArray changes.
 ---
 
 ## removeListener(arrayChangeListener)
 
 Argument    | Type                 | Required | Description
 ----------- | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
+`arrayChangeListener`   | see below | Yes      | A function that gets called when any of the ObservableArray mutators gets called.
 
 #### Description
 
-pow this is a description
+Stops listening to the ObservableArray changes.
+
+---
+
+## applyChanges(changeFunctor) -> any
+
+Argument    | Type                 | Required | Description
+----------- | -------------------- | -------- | ---
+`changeFunctor`   | () => any | Yes      | A `function` invoking multiple mutators.
+**returns** | any|          | Returns whatever the `changeFunctor` returned.
+
+#### Description
+
+`applyChanges` will invoke `changeFunctor` and during that invocation all mutators invoked on the ObservableArray will have their notification batched in a single event called `changes` allowing a listener to process all notifications are once.
+
+```javascript
+const obsArray = new sp.ObservableArray<number>();
+
+obsArray.addListener((op, args, returnValue) => {
+    console.log(op, args, returnValue);
+});
+
+const finalValue = obsArray.applyChanges(() => {
+    obsArray.push(1);
+    obsArray.splice(0, 1, 42);
+
+    return obsArray.length;
+});
+
+// When this resolve the listener will print this:
+// changes [['push', [1], 1], ['splice' [0, 1, 42] [1] ]]
+
+// Notice that finalValue === obsArray.length
+```
+
+---
+
+## Mutator functions
+
+When  any of the mutators functions are invoked, all listeners are notified on what kind of operations was applied.
 
 ---
 
@@ -523,12 +721,32 @@ class Filter<T> {
 
 Argument    | Type                 | Required | Description
 ----------- | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
+`src`   | `ObservableArray` | Yes      | ObservableArray that will be filtered.
+`predicate`    | `value => boolean` | Yes      | Predicate invoked to filter each values of the `src`.
 
 #### Description
 
-pow this is a description
+Creates a new `Filter` object from a `src` ObservableArray. `Filter` contains a `filtered` ObservableArray that is the result of applying the `predicate` function to all of the values or `src`. Each time any of the mutators function of `src` is invoked, `filtered` is kept up to date.
+
+Here is how you would update a list of names according as a user types a pattern in a `input`: 
+
+```javascript
+const models = new ObservableArray();
+for (let i = 0; i < 1000; ++i)
+    models.push(generateName());
+const match = valueStream('');
+const filter = new Filter(models, (model) => {
+    return match() ? model.indexOf(match()) > -1 : true;
+});
+const triggerFilter = map(match, () => filter.applyFilter());
+h('div', {}, [
+    h('input', { oninput: targetAttr('value', match) }),
+    // elementList will update the <ul> element when new elements are added or removed.
+    elementList('ul', { style: 'height: 300px;overflow: auto' }, filter.filtered, (listNode, model, index) => {
+        return h('li', {}, model);
+    })
+]);
+```
 
 ---
 
@@ -538,11 +756,9 @@ pow this is a description
 
 Argument    | Type                 | Required | Description
 ----------- | -------------------- | -------- | ---
-`stream`   | | Yes      | A DOM element that will be the parent node to the subtree
-`listener`    | `Array<Vnode>|Vnode` | Yes      | The [vnodes](vnodes.md) to be rendered
+`predicate`   | value => boolean | No      | New predicate to set in the Filter.
+`reset`    | `boolean` | No      | Will empty the current array and filter it from scratch (this creates less notifications).
 
 #### Description
 
-pow this is a description
-
----
+Reapply the `predicate` over the values of the `src` array of the filter. This needs to be called if the `predicate` has changed. You can also use this function to change the `predicate` altogether.
