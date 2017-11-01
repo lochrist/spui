@@ -650,6 +650,7 @@ Argument    | Type                 | Required | Description
 `addListener` allow to receive notifications when the ObservableArray is modified. It returns a `function` that when invoked will stop listening for changes.
 
 See [Filter srcChanged implementation](TODO) or [elementList onModelChange implementation](TODO) to have examples on how to react to ObservableArray changes.
+
 ---
 
 ## removeListener(arrayChangeListener)
