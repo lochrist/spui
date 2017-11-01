@@ -4,7 +4,7 @@ SPUI is a library using an hyperscript syntax that helps create HTML Elements an
 
 ### Buzzwords and hype galore
 
-SPUI is simple to use. It is simple and small (about 500 LOC). It is blazing fast (tm). And it is yet another UI framework. This is my rite of passage as a web developer.
+SPUI is simple, small (about 500 LOC) and blazing fast (tm). And it is yet another UI framework. This is my rite of passage as a web developer.
 
 ## Introduction
 
@@ -22,6 +22,14 @@ h('div', {}, [
     h('label', {}, model)
 ]);
 ```
+
+## Installation
+
+```
+npm install spui --save-dev
+```
+
+`dist/spui.js` contains the whole library. It is published as a UMD module.
 
 ## Getting Started
 
