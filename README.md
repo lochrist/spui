@@ -121,11 +121,11 @@ And that's it! We now have a todo application (like a millitoj other ones):
 
 More complete examples can be found below:
 
-- [TODO MVC](TODO): the official [TODO MVC](http://todomvc.com/) has been implemented for SPUI will all kinds of nifty TODO workflows.
-- [Table benchmarks](TODO) and implementation of the world famous [JS Framework Benchmarks](https://github.com/krausest/js-framework-benchmark) using SPUI. This implementation is deceptively small and the performance is really good. It should be submitted to the official site soon(ish).
-- [Markdown Editor](TODO): really simple example on how to listen to changes in a `<textarea>` and live convert those changes in markdown.
-- [Mini TODO](TODO) because no web developer can't get enough TODO, this is the running app from the `Getting Started` example above.
-- [Basic API usages](TODO) this is a repository of snippets that showcases all the different functions of the SPUI Api. Some of these examples are used in the official Api documentation in the next section.
+- [TODO MVC](examples/todomvc): the official [TODO MVC](http://todomvc.com/) has been implemented for SPUI will all kinds of nifty TODO workflows.
+- [Table benchmarks](examples/table-tests) and implementation of the world famous [JS Framework Benchmarks](https://github.com/krausest/js-framework-benchmark) using SPUI. This implementation is deceptively small and the performance is really good. It should be submitted to the official site soon(ish).
+- [Markdown Editor](examples/editor): really simple example on how to listen to changes in a `<textarea>` and live convert those changes in markdown.
+- [Mini TODO](examples/mini-todo) because no web developer can't get enough TODO, this is the running app from the `Getting Started` example above.
+- [Basic API usages](examples/basic-usages) this is a repository of snippets that showcases all the different functions of the SPUI Api. Some of these examples are used in the official Api documentation in the next section.
 
 # API
 
