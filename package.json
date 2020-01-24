@@ -24,7 +24,7 @@
     "tslint-eslint-rules": "^4.1.1",
     "typescript": "~2.4.2"
   },
-  "main": "dits/spui.js",
+  "main": "dist/spui.js",
   "directories": {
     "doc": "docs",
     "example": "examples",
